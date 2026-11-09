@@ -6,6 +6,26 @@
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; media-src 'self' blob:; connect-src 'none'">
 <meta name="referrer" content="no-referrer">
 <title>Surround-field — Multi-Channel Audio Visualizer</title>
+
+<!-- ===== Open Graph / social preview ===== -->
+<meta property="og:type"        content="website">
+<meta property="og:site_name"   content="Surround-field">
+<meta property="og:title"       content="Surround-field — 3D Surround Sound Visualizer">
+<meta property="og:description" content="A serverless, in-browser 5.1/7.1 audio visualizer. Drop any audio or video file and watch the sound field move around a 3D listening room. No uploads, no tracking.">
+<meta property="og:url"         content="https://surround-field.is-a.dev/">
+<meta property="og:image"       content="https://surround-field.is-a.dev/og-cover.png">
+<meta property="og:image:width"  content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt"   content="3D listening room with six glowing speakers surrounding a chair, reacting to audio">
+<meta name="twitter:card"        content="summary_large_image">
+<meta name="twitter:title"       content="Surround-field — 3D Surround Sound Visualizer">
+<meta name="twitter:description" content="Serverless 5.1/7.1 audio visualizer in a single HTML file. Drop a file, watch the room react.">
+<meta name="twitter:image"       content="https://surround-field.is-a.dev/og-cover.png">
+<meta name="theme-color" content="#070910">
+<meta name="description" content="Surround-field: a local, serverless multi-channel (1.0–7.1.4) audio visualizer with auto-routing, LUFS metering and calibration tools.">
+<link rel="canonical" href="https://surround-field.is-a.dev/">
+<!-- ===== end OG block ===== -->
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
@@ -215,11 +235,20 @@ kbd{font-family:var(--mono);font-size:10px;background:#0a0e15;border:1px solid v
 .toast.on{opacity:1;visibility:visible;transform:translate(-50%,0)}
 .reveal{opacity:0;transform:translateY(10px);animation:rise .7s cubic-bezier(.2,.8,.2,1) forwards}
 .railtoggle{display:none}
+/* drawer close affordances (base; revealed on mobile) */
+.scrim{position:fixed;inset:0;z-index:44;background:rgba(3,5,9,.6);opacity:0;visibility:hidden;pointer-events:none;transition:.3s}
+.railhead{display:none}
+.railtoggle.on{background:var(--amber);color:#14100a;border-color:var(--amber)}
 @media (max-width:900px){
   .mid{grid-template-columns:1fr}
-  .rail{position:fixed;top:0;right:0;bottom:0;width:min(340px,88vw);z-index:45;transform:translateX(103%);transition:transform .35s;box-shadow:-24px 0 60px -20px #000}
+  .rail{position:fixed;top:var(--tbh,0px);right:0;bottom:0;width:min(340px,88vw);z-index:45;transform:translateX(103%);transition:transform .35s;box-shadow:-24px 0 60px -20px #000}
+  .scrim{top:var(--tbh,0px)}
   .rail.open{transform:none}
   .railtoggle{display:inline-flex!important}
+  .scrim.on{opacity:1;visibility:visible;pointer-events:auto}
+  .railhead{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 14px;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5;background:linear-gradient(180deg,#111823,#0d121a);font-family:var(--mono);font-size:10px;letter-spacing:.2em;color:var(--dim2)}
+  .rclose{font-family:var(--mono);font-size:10px;letter-spacing:.14em;color:var(--txt);border:1px solid var(--line);border-radius:4px;padding:6px 10px;background:#0a0f16;cursor:pointer}
+  .rclose:hover{border-color:rgba(255,181,69,.55)}
   .stage{min-height:52vh}
   .hud.bl{display:none}
   .settings{top:auto;bottom:52px;left:12px;right:auto;width:auto;display:flex;gap:12px;align-items:center;padding:8px 10px;flex-wrap:wrap}
@@ -289,14 +318,15 @@ kbd{font-family:var(--mono);font-size:10px;background:#0a0e15;border:1px solid v
           <div class="ring"><i></i><i></i><i></i>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 16V4m0 0L7 9m5-5 5 5M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg></div>
           <h2>Drop <em>any audio</em><br>into the room.</h2>
-          <p>Auto-routing 1.0 → 7.1, Atmos height view, tone generator, LUFS meter, goniometer, spectrogram, calibration tools and one-click export — all local.</p>
+          <p>Auto-routing 1.0 → 7.1.4 with discrete height channels, Atmos view, tone generator, LUFS meter, goniometer, spectrogram, calibration tools and one-click export — all local.</p>
           <div class="row"><button class="btn primary" id="dropLoad">CHOOSE FILE</button><button class="btn" id="dropDemo">PLAY 5.1 TEST</button></div>
-          <div class="formats">1.0 → 7.1 · WAV · FLAC · MP3 · M4A · OGG — MP4 · MKV · WEBM · MOV</div>
+          <div class="formats">1.0 → 7.1.4 · WAV · FLAC · MP3 · M4A · OGG — MP4 · MKV · WEBM · MOV</div>
         </div>
       </div>
     </section>
 
     <aside class="rail" id="rail">
+      <div class="railhead"><b>CHANNEL RACK</b><button class="rclose" id="railClose">CLOSE ✕</button></div>
       <div class="sect"><div class="sect-h"><span>CHANNEL RACK</span><b id="rackMode">AUTO</b></div><div id="rack"></div></div>
       <div class="sect" id="radarSect">
         <div class="sect-h"><span>FIELD MAP</span><b id="focusRead">—</b></div>
@@ -376,6 +406,8 @@ kbd{font-family:var(--mono);font-size:10px;background:#0a0e15;border:1px solid v
   </footer>
 </div>
 
+<div class="scrim" id="scrim"></div>
+
 <div class="modal" id="modal" role="dialog" aria-modal="true">
   <div class="modalcard">
     <div class="modalhead"><div><span class="tag" id="modalTag">SURROUND-FIELD</span><h3 id="modalTitle"></h3></div>
@@ -422,7 +454,7 @@ CH.forEach(c=>{c.rgb=hex2rgb(c.col);c.pos=[Math.sin(c.az*D2R)*c.r,c.h,Math.cos(c
  c.mute=false;c.solo=false;c.enabled=!c.height;
  c.bands=new Float32Array(26);c.rings=[];c.hit=null;c.cool=0;});
 const NCH=CH.length;
-const LAYOUT_NAME={1:'MONO 1.0',2:'STEREO 2.0',3:'3.0',4:'QUAD 4.0',5:'5.0',6:'5.1',7:'6.1 / 7.0',8:'7.1'};
+const LAYOUT_NAME={1:'MONO 1.0',2:'STEREO 2.0',3:'3.0',4:'QUAD 4.0',5:'5.0',6:'5.1',7:'6.1 / 7.0',8:'7.1',9:'7.1 + BC',10:'5.1.4',11:'7.1.2',12:'7.1.4'};
 const ROOM_SET={1:['C'],2:['FL','FR'],3:['FL','FR','C'],4:['FL','FR','SL','SR'],5:['FL','FR','C','SL','SR']};
 const HEIGHTS=['TFL','TFR','TBL','TBR','VOG'];
 const state={playing:false,loop:false,monitor:true,vol:.75,center:.65,spread:.60,lfe:.90,
@@ -434,7 +466,8 @@ function autoLayout(n){
   const set=state.atmos?base.concat(HEIGHTS):base.slice();
   CH.forEach(c=>{c.enabled=set.includes(c.id);});
   const nm=(LAYOUT_NAME[n]||'5.1').split(' ')[0];
-  $('#glyph').innerHTML=nm.split('.')[0]+'<small>.'+nm.split('.')[1]+'</small>';
+  const gp=nm.split('.');
+  $('#glyph').innerHTML=gp[0]+'<small>.'+gp.slice(1).join('.')+'</small>';
   buildLegend(); refreshRack();
 }
 
@@ -504,9 +537,27 @@ function routeUniversal(n){
     tapIn(0,busIn[0],1);tapIn(1,busIn[1],1);tapIn(2,busIn[2],1);tapIn(3,busIn[4],1);tapIn(4,busIn[5],1);
     tapIn(5,busIn[2],.5);tapIn(5,busIn[4],.25);tapIn(5,busIn[5],.25);tapIn(6,busIn[3],state.lfe);
     state.resolved='6.1 (7CH) → 5.1';}
-  else{tapIn(0,busIn[0],1);tapIn(1,busIn[1],1);tapIn(2,busIn[2],1);tapIn(3,busIn[3],state.lfe);
+  else if(n===8){tapIn(0,busIn[0],1);tapIn(1,busIn[1],1);tapIn(2,busIn[2],1);tapIn(3,busIn[3],state.lfe);
     tapIn(4,busIn[4],.7);tapIn(6,busIn[4],1);tapIn(5,busIn[5],.7);tapIn(7,busIn[5],1);state.resolved='7.1 → 5.1 (REARS FOLDED)';}
-  if(state.atmos) heightDerive();
+  else if(n===9){tapIn(0,busIn[0],1);tapIn(1,busIn[1],1);tapIn(2,busIn[2],1);tapIn(3,busIn[3],state.lfe);
+    tapIn(4,busIn[4],.7);tapIn(6,busIn[4],1);tapIn(5,busIn[5],.7);tapIn(7,busIn[5],1);tapIn(8,busIn[2],.4);
+    state.resolved='9CH → 5.1 (BC→C)';}
+  else if(n===10){tapIn(0,busIn[0],1);tapIn(1,busIn[1],1);tapIn(2,busIn[2],1);tapIn(3,busIn[3],state.lfe);
+    tapIn(4,busIn[4],1);tapIn(5,busIn[5],1);
+    tapIn(6,busIn[6],1);tapIn(7,busIn[7],1);tapIn(8,busIn[8],1);tapIn(9,busIn[9],1);
+    state.resolved='5.1.4 DISCRETE · HEIGHTS LIVE';}
+  else if(n===11){tapIn(0,busIn[0],1);tapIn(1,busIn[1],1);tapIn(2,busIn[2],1);tapIn(3,busIn[3],state.lfe);
+    tapIn(4,busIn[4],.7);tapIn(6,busIn[4],1);tapIn(5,busIn[5],.7);tapIn(7,busIn[5],1);
+    tapIn(8,busIn[6],1);tapIn(9,busIn[7],1);tapIn(10,busIn[8],1);
+    state.resolved='11CH → 5.1.3 · HEIGHTS LIVE';}
+  else{tapIn(0,busIn[0],1);tapIn(1,busIn[1],1);tapIn(2,busIn[2],1);tapIn(3,busIn[3],state.lfe);
+    tapIn(4,busIn[4],.7);tapIn(6,busIn[4],1);tapIn(5,busIn[5],.7);tapIn(7,busIn[5],1);
+    tapIn(8,busIn[6],1);tapIn(9,busIn[7],1);tapIn(10,busIn[8],1);tapIn(11,busIn[9],1);
+    state.resolved='7.1.4 → 5.1.4 · HEIGHTS LIVE';}
+  if(state.atmos){
+    if(n<10) heightDerive();
+    else{const hp=F('highpass',1500,.707),dl=DL(.005);busIn[2].connect(hp);hp.connect(dl);link(dl,busIn[10],.4);}
+  }
 }
 function beginGraph(){
   ensureCtx(); killGraph();
@@ -548,7 +599,7 @@ function commonTail(){
 function buildGraph(resumeAt,wasPlaying){
   if(!buffer)return;
   beginGraph();
-  const n=Math.min(buffer.numberOfChannels,8);
+  const n=Math.min(buffer.numberOfChannels,12);
   src=actx.createBufferSource();src.buffer=buffer;src.loop=state.loop;
   splitter=actx.createChannelSplitter(n);src.connect(splitter);
   routeUniversal(n); commonTail();
@@ -655,7 +706,9 @@ function adopt(buf,name){
   if(objectUrl){URL.revokeObjectURL(objectUrl);objectUrl=null;}
   vid.pause();vid.removeAttribute('src');try{vid.load()}catch(e){}
   $('#videoBox').hidden=true;$('#videoBtn').disabled=true;$('#videoBtn').classList.remove('on');
-  const n=Math.min(buf.numberOfChannels,8);state.srcN=n;autoLayout(n);
+  const n=Math.min(buf.numberOfChannels,12);state.srcN=n;
+  if(n>=10&&!state.atmos){state.atmos=true;$('#tgAtmos').classList.add('on');}
+  autoLayout(n);
   computePeaks();buildGraph(0,false);finishLoadUI(name);
   $('#iCh').textContent=buf.numberOfChannels+' DISCRETE';
   $('#iLayout').textContent=LAYOUT_NAME[buf.numberOfChannels]||buf.numberOfChannels+' CH';
@@ -777,6 +830,8 @@ const cam={yaw:0,tYaw:0,dist:6.1,tDist:6.1,h:.35,tH:.35,ty:.92,tTy:.92,pos:[0,0,
 const gon=$('#gonio'),gc=gon.getContext('2d');
 const spec=$('#spec'),sc=spec.getContext('2d');
 function resize(){
+  const tb=document.querySelector('.topbar');
+  if(tb)document.documentElement.style.setProperty('--tbh',tb.offsetHeight+'px');
   const r=$('#stageWrap').getBoundingClientRect();
   DPR=Math.min(2,window.devicePixelRatio||1);
   W=Math.max(280,r.width);H=Math.max(220,r.height);
@@ -1144,6 +1199,16 @@ function setStatus(t,c){$('#statusTxt').textContent=t;$('#led').className='led'+
 function syncPlayIcon(){$('#playIcon').innerHTML=state.playing?'<path d="M6 5h4v14H6zM14 5h4v14h-4z"/>':'<path d="M8 5v14l11-7z"/>';}
 function buildLegend(){$('#legend').innerHTML=CH.filter(c=>c.enabled).map(c=>
   `<div style="margin-top:3px"><span style="color:${c.col}">■</span> <span class="k">${c.id}</span> <span class="v">${c.az>0?'+':''}${c.az}°</span> <span class="k">${c.r.toFixed(2)}m</span></div>`).join('');}
+/* mobile rack drawer: toggle / close button / scrim / Esc all synced */
+function setRail(open){
+  $('#rail').classList.toggle('open',open);
+  $('#scrim').classList.toggle('on',open);
+  $('#railToggle').classList.toggle('on',open);
+  $('#railToggle').setAttribute('aria-expanded',open?'true':'false');
+}
+$('#railToggle').addEventListener('click',()=>setRail(!$('#rail').classList.contains('open')));
+$('#railClose').addEventListener('click',()=>setRail(false));
+$('#scrim').addEventListener('click',()=>setRail(false));
 $('#loadBtn').addEventListener('click',()=>$('#fileIn').click());
 $('#dropLoad').addEventListener('click',()=>$('#fileIn').click());
 $('#fileIn').addEventListener('change',e=>{if(e.target.files[0])loadFile(e.target.files[0]);e.target.value='';});
@@ -1178,7 +1243,6 @@ $('#toneType').addEventListener('change',e=>{tone.type=e.target.value;if(tone.on
 $('#toneCh').addEventListener('change',e=>{tone.ch=+e.target.value;if(tone.on)toneConnect();syncToneUI();});
 $('#toneLvl').addEventListener('input',e=>{tone.level=+e.target.value;if(tone.out)tone.out.gain.value=tone.level;});
 $('#helpBtn').addEventListener('click',()=>openModal('help'));
-$('#railToggle').addEventListener('click',()=>$('#rail').classList.toggle('open'));
 vid.addEventListener('ended',()=>{if(kind==='media'&&!state.loop){state.playing=false;syncPlayIcon();setStatus('PAUSED','');}});
 /* tools grids */
 CH.forEach((c,i)=>{
@@ -1274,7 +1338,7 @@ window.addEventListener('keydown',e=>{
     const i=bs.findIndex(b=>b.classList.contains('on'));bs[(i+1)%bs.length].click();}
   else if(k.toLowerCase()==='d')demoAction();
   else if(k==='?'||k==='/')modal.classList.contains('on')?closeModal():openModal('help');
-  else if(k==='Escape'){closeModal();$('#rail').classList.remove('open');}});
+  else if(k==='Escape'){closeModal();setRail(false);}});
 
 /* ===== 8 · legal / consent ===== */
 const YEAR=new Date().getFullYear(),CONTACT='akuncadangans1tu@protonmail.me';
@@ -1285,10 +1349,10 @@ if(!lsGet('mv_consent'))setTimeout(()=>$('#cookieBar').classList.add('on'),900);
 $('#cookieOk').addEventListener('click',()=>{lsSet('mv_consent','1');$('#cookieBar').classList.remove('on');});
 const LEGAL={
 help:{tag:'FIELD MANUAL',title:'Routing, tools & meters',html:`
-  <p>The room rebuilds itself per source: <b>1.0</b> center only · <b>2.0</b> stereo pair (matrix derives C/SL/SR/LFE) · <b>3.0/4.0</b> missing channels added · <b>5.0</b> five + derived LFE · <b>5.1/6.1/7.x</b> full six with rears folded. Rack rows and 3D speakers add/remove automatically; ROUTING shows the exact map.</p>
+  <p>The room rebuilds itself per source: <b>1.0</b> center only · <b>2.0</b> stereo pair (matrix derives C/SL/SR/LFE) · <b>3.0/4.0</b> missing channels added · <b>5.0</b> five + derived LFE · <b>5.1/6.1/7.1</b> full six with rears folded · <b>5.1.4 / 7.1.4</b> height channels play discretely on the top speakers. Rack rows and 3D speakers add/remove automatically; ROUTING shows the exact map.</p>
   <h4>VIEW PANEL</h4>
   <ul><li><b>SPEAKERS / LABELS / RADAR</b> — show-hide layers</li>
-  <li><b>ATMOS</b> — adds 4 height speakers + Voice-of-God, derived with decorrelating delays; joined into the stereo fold</li>
+  <li><b>ATMOS</b> — on 5.1/7.1 sources it derives 4 height speakers + Voice-of-God from the mains; on 5.1.4 / 7.1.4 sources the file's real height channels play discretely and the toggle switches on automatically</li>
   <li><b>BINAURAL</b> — swaps the chair for a head with a virtual speaker ring</li></ul>
   <h4>FIELD TOOLS</h4>
   <ul><li><b>TONE</b> — pink noise / 440 Hz / 20→20k sweep into any bus (works with no file); CYCLE rotates channels</li>
@@ -1301,7 +1365,8 @@ help:{tag:'FIELD MANUAL',title:'Routing, tools & meters',html:`
   <ul><li><b>PNG</b> screenshot · <b>CSV</b> per-channel analysis · <b>SHARE</b> URL with matrix + camera state</li></ul>
   <h4>KEYS</h4>
   <ul><li><kbd>Space</kbd> play · <kbd>← →</kbd> seek · <kbd>1…6</kbd> solo · <kbd>⇧1…6</kbd> mute · <kbd>0</kbd> clear</li>
-  <li><kbd>T</kbd> tone · <kbd>C</kbd> camera · <kbd>D</kbd> demo · <kbd>?</kbd> help · <kbd>Esc</kbd> close</li></ul>`},
+  <li><kbd>T</kbd> tone · <kbd>C</kbd> camera · <kbd>D</kbd> demo · <kbd>?</kbd> help · <kbd>Esc</kbd> close / close rack</li>
+  <li>On phones: tap <b>RACK</b> to open the drawer (topbar stays visible above the dark scrim), then <b>CLOSE ✕</b>, tap the scrim, or press RACK again to shut it.</li></ul>`},
 tos:{tag:'LEGAL · EFFECTIVE '+YEAR,title:'Terms of Service',html:`
   <h4>1 · AGREEMENT</h4><p>These Terms govern your use of <b>Surround-field</b>. By loading the page you accept them.</p>
   <h4>2 · THE SERVICE</h4><p>A client-side audio/video visualizer and metering tool. All processing happens locally. Local &amp; Serverless. No file is sent to a server.</p>
@@ -1345,10 +1410,11 @@ compat:{tag:'SETUP',title:'Browser Compatibility & Setup',html:`
   <h4>BROWSERS</h4><ul><li><b>Chrome / Edge 90+</b> — recommended: multichannel decode, discrete 6-ch output</li>
   <li><b>Firefox 90+</b> — full run; decoder often down-mixes → auto matrix</li>
   <li><b>Safari 15.4+</b> — supported; surround may down-mix</li>
-  <li><b>Mobile</b> — works; stereo fold; RACK opens the drawer</li></ul>
+  <li><b>Mobile</b> — works; stereo fold; RACK opens a drawer that leaves the topbar tappable; CLOSE ✕ / scrim / RACK again shuts it</li></ul>
   <h4>TRUE 5.1 OUTPUT</h4><p>Set OS default to a 5.1 device; SOURCE → OUTPUT then reads <code>DISCRETE 6CH+ OUT</code>.</p>
   <h4>TEST FILES</h4><div class="prebox">ffmpeg -i in.mkv -map 0:a:0 -c:a pcm_s16le -ac 6 test.wav
-ffmpeg -i in.mkv -c:v copy -c:a copy clip.mp4</div>`},
+ffmpeg -i in.mkv -c:v copy -c:a copy clip.mp4
+ffmpeg -i in.mkv -map 0:a:0 -c:a pcm_s24le -ac 12 test_714.wav</div>`},
 dmca:{tag:'LEGAL',title:'Copyright Notice & DMCA Policy',html:`
   <h4>LOCAL BY DESIGN</h4><p>Surround-field hosts nothing; user files never leave the device.</p>
   <h4>CLAIMS ABOUT THE APP</h4><p>Send notices with: work identification; material location; contact details; good-faith statement; perjury-accuracy statement; signature.</p>
@@ -1435,4 +1501,4 @@ document.querySelectorAll('.sect').forEach((s,i)=>{s.classList.add('reveal');s.s
 requestAnimationFrame(frame);
 </script>
 </body>
-</html>  
+</html>
