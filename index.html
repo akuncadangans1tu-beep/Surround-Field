@@ -370,6 +370,7 @@ kbd{font-family:var(--mono);font-size:10px;background:#0a0e15;border:1px solid v
       <div class="sect">
         <div class="sect-h"><span>FIELD TOOLS</span><b id="toneState">TONE OFF</b></div>
         <div class="tools">
+         <div class="trow"><label>GEN</label><select id="genCh"><option value="2">STEREO 2.0</option><option value="6" selected>5.1</option><option value="12">7.1.4</option></select><button class="tbtn" id="genBtn">GENERATE WAV</button></div>
           <div class="trow"><label>TYPE</label><select id="toneType"><option value="pink">PINK NOISE</option><option value="sine">SINE 440 Hz</option><option value="sweep">SWEEP 20→20k</option></select>
             <label>CH</label><select id="toneCh"></select></div>
           <div class="trow"><button class="tbtn" id="toneBtn">TONE ON</button><button class="tbtn" id="toneCyc">CYCLE</button>
@@ -799,7 +800,32 @@ function computePeaks(){
     peaks[b]=mx;}
   seekCache=null;
 }
-
+/* ===== 3b · in-browser multichannel test WAV generator ===== */
+function makeTestWav(nch){
+  const sr=48000,N=sr*6,freqs=[220,277,330,40,440,554,660,880,1000,1200,1400,1600];
+  const data=new Int16Array(N*nch);
+  for(let i=0;i<N;i++){const t=i/sr;
+    for(let c=0;c<nch;c++){let v;
+      if(c===3)v=Math.sin(TAU*40*t);
+      else if(c>=8)v=((t%4)>=2&&(t%4)<3)?Math.sin(TAU*freqs[c]*t):0;
+      else v=Math.sin(TAU*freqs[c]*t)*(0.5+0.5*Math.sin(TAU*t/3));
+      data[i*nch+c]=Math.round(v*0.6*32767);}}
+  const masks=[0x1,0x2,0x4,0x8,0x10,0x20,0x200,0x400,0x1000,0x4000,0x8000,0x10000];
+  let mask=0;for(let c=0;c<nch;c++)mask|=masks[c];
+  const blockAlign=nch*2,dataLen=N*blockAlign,total=68+dataLen;
+  const ab=new ArrayBuffer(total),dv=new DataView(ab),u8=new Uint8Array(ab);
+  const ws=(o,s)=>{for(let i=0;i<s.length;i++)u8[o+i]=s.charCodeAt(i);};
+  ws(0,'RIFF');dv.setUint32(4,total-8,true);ws(8,'WAVE');
+  ws(12,'fmt ');dv.setUint32(16,40,true);dv.setUint16(20,0xFFFE,true);dv.setUint16(22,nch,true);
+  dv.setUint32(24,sr,true);dv.setUint32(28,sr*blockAlign,true);dv.setUint16(32,blockAlign,true);
+  dv.setUint16(34,16,true);dv.setUint16(36,22,true);dv.setUint16(38,16,true);dv.setUint32(40,mask,true);
+  const guid=[0x01,0x00,0x00,0x00,0x00,0x00,0x10,0x00,0x80,0x00,0x00,0xAA,0x00,0x38,0x9B,0x71];
+  for(let i=0;i<16;i++)u8[44+i]=guid[i];
+  ws(60,'data');dv.setUint32(64,dataLen,true);
+  new Int16Array(ab,68,N*nch).set(data);
+  return new Blob([ab],{type:'audio/wav'});
+}
+  
 /* ===== 4 · analysis ===== */
 let totalE=0,frontE=0,surrE=0,lfeE=0,domAng=0,focus=0,corr=0;
 function analyse(dt){
@@ -1283,7 +1309,16 @@ EL.toneCyc.addEventListener('click',e=>{tone.cycle=!tone.cycle;e.currentTarget.c
 EL.toneType.addEventListener('change',e=>{tone.type=e.target.value;if(tone.on)toneResume();syncToneUI();});
 EL.toneCh.addEventListener('change',e=>{tone.ch=+e.target.value;if(tone.on)toneConnect();syncToneUI();});
 EL.toneLvl.addEventListener('input',e=>{tone.level=+e.target.value;if(tone.out)tone.out.gain.value=tone.level;});
-EL.helpBtn.addEventListener('click',()=>openModal('help'));
+$('#genBtn').addEventListener('click',async()=>{
+  ensureCtx();setStatus('DECODING','decode');
+  const n=+$('#genCh').value;
+  try{
+    const ab=await makeTestWav(n).arrayBuffer();
+    const b2=await actx.decodeAudioData(ab);
+    adopt(b2,'generated_'+n+'ch_test.wav');
+  }catch(e){console.error(e);toast('GENERATED WAV DECODE FAILED');}
+});
+  EL.helpBtn.addEventListener('click',()=>openModal('help'));
 vid.addEventListener('ended',()=>{if(kind==='media'&&!state.loop){state.playing=false;syncPlayIcon();setStatus('PAUSED','');}});
 CH.forEach((c,i)=>{
   const o1=document.createElement('option');o1.value=i;o1.textContent=c.id;EL.toneCh.appendChild(o1);
