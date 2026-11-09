@@ -1,0 +1,6 @@
+{
+  "name": "surround-field",
+  "private": true,
+  "scripts": { "smoke": "node smoke.mjs" },
+  "devDependencies": { "playwright": "^1.49.0" }
+}
