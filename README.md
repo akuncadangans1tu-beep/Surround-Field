@@ -8,7 +8,7 @@ Surround-field is a single-file web application built entirely with Vanilla JS, 
 
 **No uploads. No servers. 100% local processing.**
 
-👉 **[Try the Live Demo](https://akuncadangans1tu-beep.github.io/surround-field/)**
+👉 **[Try the Live Demo](https://akuncadangans1tu-beep.github.io/Surround-Field/)**
 
 ## ✨ Features
 
@@ -20,7 +20,7 @@ Surround-field is a single-file web application built entirely with Vanilla JS, 
 
 ## 🚀 How to Use
 
-1. Open the [Live Demo](https://akuncadangans1tu-beep.github.io/surround-field/).
+1. Open the [Live Demo](https://akuncadangans1tu-beep.github.io/Surround-Field/).
 2. Drag and drop any multi-channel audio file (WAV, FLAC, MP4, MKV) into the room, or click **DEMO** to hear a synthesized 5.1 test track.
 3. Use the **RACK** drawer to solo/mute channels, adjust the up-mix matrix, and view per-channel spectrograms.
 4. Drag the 3D room to orbit, scroll to dolly, and shift-drag to change camera height.
