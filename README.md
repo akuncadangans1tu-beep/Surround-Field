@@ -46,5 +46,5 @@ Surround-field is a single-file web application built entirely with Vanilla JS, 
 
 ## 📄 License
 
-Licensed under the **Apache License 2.0** with the **Commons Clause**. 
-*(You can use, modify, and embed it, but you cannot sell the software itself as a standalone product. See `LICENSE` in the app's legal menu for details).*
+Licensed under the **GNU AFFERO GENERAL PUBLIC LICENSE V3.0**. 
+*(You can use, modify, and distribute it freely, even commercially. However, if you modify and share it—or host a modified version as a web service—you must release your source code under the same AGPL v3.0 license. See `LICENSE` in the app's legal menu for details).*
