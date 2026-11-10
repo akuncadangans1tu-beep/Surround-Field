@@ -20,7 +20,8 @@
 <meta name="twitter:description" content="Serverless 5.1/7.1 audio visualizer in a single HTML file. Drop a file, watch the room react.">
 <meta name="twitter:image"       content="https://surround-field.is-a.dev/og-cover.png">
 <meta name="theme-color" content="#070910">
-<meta name="description" content="Surround-field: a local, serverless multi-channel (1.0–7.1.4) audio visualizer with auto-routing, LUFS metering and calibration tools.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'><circle cx='20' cy='20' r='4' fill='%23ffb545'/><path d='M27 13a10 10 0 0 1 0 14M13 27a10 10 0 0 1 0-14' stroke='%233fe0ff' stroke-width='3' fill='none' stroke-linecap='round'/><path d='M32 8a17 17 0 0 1 0 24M8 32A17 17 0 0 1 8 8' stroke='%23ff3f8e' stroke-width='2.5' fill='none' stroke-linecap='round' opacity='.8'/></svg>">
+<meta name="description" content="Surround-field: a local, serverless multi-channel (1.0–7.1.4) audio visualizer with auto-routing, LUFS metering, room reflections and IR export.">
 <link rel="canonical" href="https://surround-field.is-a.dev/">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -331,7 +332,7 @@ kbd{font-family:var(--mono);font-size:10px;background:#0a0e15;border:1px solid v
           <div class="ring"><i></i><i></i><i></i>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 16V4m0 0L7 9m5-5 5 5M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg></div>
           <h2>Drop <em>any audio</em><br>into the room.</h2>
-          <p>Auto-routing 1.0 → 7.1.4 with discrete height channels, Atmos view, tone generator, LUFS meter, goniometer, spectrogram, calibration tools and one-click export — all local.</p>
+          <p>Auto-routing 1.0 → 7.1.4 with discrete height channels, Atmos view, room reflections, IR export, tone generator, LUFS meter, goniometer and spectrogram — all local.</p>
           <div class="row"><button class="btn primary" id="dropLoad">CHOOSE FILE</button><button class="btn" id="dropDemo">PLAY 5.1 TEST</button></div>
           <div class="formats">1.0 → 7.1.4 · WAV · FLAC · MP3 · M4A · OGG — MP4 · MKV · WEBM · MOV</div>
         </div>
@@ -370,7 +371,7 @@ kbd{font-family:var(--mono);font-size:10px;background:#0a0e15;border:1px solid v
       <div class="sect">
         <div class="sect-h"><span>FIELD TOOLS</span><b id="toneState">TONE OFF</b></div>
         <div class="tools">
-         <div class="trow"><label>GEN</label><select id="genCh"><option value="2">STEREO 2.0</option><option value="6" selected>5.1</option><option value="12">7.1.4</option></select><button class="tbtn" id="genBtn">GENERATE WAV</button></div>
+          <div class="trow"><label>GEN</label><select id="genCh"><option value="2">STEREO 2.0</option><option value="6" selected>5.1</option><option value="12">7.1.4</option></select><button class="tbtn" id="genBtn">GENERATE WAV</button></div>
           <div class="trow"><label>TYPE</label><select id="toneType"><option value="pink">PINK NOISE</option><option value="sine">SINE 440 Hz</option><option value="sweep">SWEEP 20→20k</option></select>
             <label>CH</label><select id="toneCh"></select></div>
           <div class="trow"><button class="tbtn" id="toneBtn">TONE ON</button><button class="tbtn" id="toneCyc">CYCLE</button>
@@ -437,7 +438,6 @@ kbd{font-family:var(--mono);font-size:10px;background:#0a0e15;border:1px solid v
 
 <script>
 "use strict";
-     
 /* ===== 0 · helpers, element cache, guards ===== */
 const $=s=>document.querySelector(s);
 const EL={};
@@ -478,7 +478,7 @@ CH.forEach(c=>{c.rgb=hex2rgb(c.col);c.rgbStr=c.rgb.join(',');c.pos=[Math.sin(c.a
  c.mute=false;c.solo=false;c.enabled=!c.height;
  c.bands=new Float32Array(26);c.rings=[];c.hit=null;c.cool=0;});
 const NCH=CH.length;
-let EN=[]; /* enabled-channel index cache for hot loops */
+let EN=[];
 const LAYOUT_NAME={1:'MONO 1.0',2:'STEREO 2.0',3:'3.0',4:'QUAD 4.0',5:'5.0',6:'5.1',7:'6.1 / 7.0',8:'7.1',9:'7.1 + BC',10:'5.1.4',11:'7.1.2',12:'7.1.4'};
 const GLYPH={1:'1.0',2:'2.0',3:'3.0',4:'4.0',5:'5.0',6:'5.1',7:'6.1',8:'7.1',9:'7.1',10:'5.1.4',11:'7.1.2',12:'7.1.4'};
 const ROOM_SET={1:['C'],2:['FL','FR'],3:['FL','FR','C'],4:['FL','FR','SL','SR'],5:['FL','FR','C','SL','SR']};
@@ -725,7 +725,10 @@ async function loadFile(file){
   if(isVid&&file.size>4e9){toast('FILE TOO LARGE (>4 GB).');return;}
   if(isVid){setupMedia(file);return;}
   ensureCtx();setStatus('DECODING','decode');
-  try{const ab=await file.arrayBuffer();const buf=await actx.decodeAudioData(ab);adopt(buf,file.name);}
+  try{const ab=await file.arrayBuffer();
+    adm=parseADM(ab);admTrails.length=0;
+    $('#admSect').hidden=!adm; if(adm)$('#admCount').textContent=adm.objects.length+' OBJ';
+    const buf=await actx.decodeAudioData(ab);adopt(buf,file.name);}
   catch(e){console.error(e);toast('AUDIO DECODE FAILED — trying media-element playback…');setupMedia(file);}
 }
 function resetChannels(){for(let i=0;i<NCH;i++){const c=CH[i];c.mute=false;c.solo=false;c.lvl=0;c.vis=0;c.hold=0;c.rings.length=0;}}
@@ -751,6 +754,7 @@ function setupMedia(file){
   if(objectUrl)URL.revokeObjectURL(objectUrl);
   objectUrl=URL.createObjectURL(file);vid.src=objectUrl;vid.loop=state.loop;
   vid.addEventListener('loadedmetadata',function h(){vid.removeEventListener('loadedmetadata',h);EL.tDur.textContent=fmtTime(dur());});
+  adm=null;admTrails.length=0;$('#admSect').hidden=true;
   state.srcN=2;autoLayout(2);buildMediaGraph();finishLoadUI(file.name);
   EL.iCh.textContent='2 (MEDIA ELEMENT)';EL.iLayout.textContent='VIDEO SOURCE';EL.srcFmt.textContent='VIDEO SOURCE';
   EL.videoBox.hidden=false;EL.videoBtn.disabled=false;EL.videoBtn.classList.add('on');
@@ -764,6 +768,7 @@ function eject(){
   if(objectUrl){URL.revokeObjectURL(objectUrl);objectUrl=null;}
   killGraph();src=null;buffer=null;kind='none';peaks=null;seekCache=null;state.hasAudio=false;
   resetChannels();state.srcN=6;autoLayout(6);
+  adm=null;admTrails.length=0;$('#admSect').hidden=true;
   EL.drop.classList.remove('hide');EL.playBtn.disabled=true;EL.ejectBtn.disabled=true;
   EL.videoBtn.disabled=true;EL.videoBtn.classList.remove('on');EL.videoBox.hidden=true;
   const blank=['iName','iCh','iLayout','iRoute','iOut'];
@@ -802,6 +807,7 @@ function computePeaks(){
     peaks[b]=mx;}
   seekCache=null;
 }
+
 /* ===== 3b · in-browser multichannel test WAV generator ===== */
 function makeTestWav(nch){
   const sr=48000,N=sr*6,freqs=[220,277,330,40,440,554,660,880,1000,1200,1400,1600];
@@ -827,7 +833,7 @@ function makeTestWav(nch){
   new Int16Array(ab,68,N*nch).set(data);
   return new Blob([ab],{type:'audio/wav'});
 }
-  
+
 /* ===== 4 · analysis ===== */
 let totalE=0,frontE=0,surrE=0,lfeE=0,domAng=0,focus=0,corr=0;
 function analyse(dt){
@@ -887,7 +893,7 @@ const spec=EL.spec,sc=spec.getContext('2d');
 let rzPend=false;
 function queueResize(){if(rzPend)return;rzPend=true;requestAnimationFrame(()=>{rzPend=false;resize();});}
 function resize(){
-  EL.topbar&&document.documentElement.style.setProperty('--tbh',EL.topbar.offsetHeight+'px');
+  if(EL.topbar)document.documentElement.style.setProperty('--tbh',EL.topbar.offsetHeight+'px');
   const r=EL.stageWrap.getBoundingClientRect();
   DPR=Math.min(2,window.devicePixelRatio||1);
   W=Math.max(280,r.width);H=Math.max(220,r.height);
@@ -1131,8 +1137,9 @@ function renderScene(t,dt){
     gr.addColorStop(0,'rgba(255,178,90,'+(.035+fw*.10)+')');gr.addColorStop(1,'rgba(0,0,0,0)');
     g2.fillStyle=gr;g2.fillRect(0,0,W,H);}
   floorAndRoom(t);
+  renderRoomRefl();
   if(state.binaural)head(t);else chair(t);
-  speakers(t);drawDust(t,dt);labels();
+  speakers(t);admOrbs(t);drawDust(t,dt);labels();
 }
 
 /* ===== 6 · radar / rack / seek / meters ===== */
@@ -1246,7 +1253,7 @@ function renderMeters(){
   if(state.playing&&actx&&td.length){gc.fillStyle='rgba(255,181,69,.75)';
     const a=td[0],b=td[1];
     for(let k=0;k<a.length;k+=6){const l=a[k],r=b[k];
-      gc.fillRect(S/2+(l-r)*.707*S*.46,S/2+(l+r)*-.707*S*.46,1.4,1.4);}}
+      gc.fillRect(S/2+(l-r)*.707*S*.46,S/2-(l+r)*.707*S*.46,1.4,1.4);}}
   const w=spec.width/DPR,h=spec.height/DPR;
   if(w<4||h<4)return;
   sc.setTransform(DPR,0,0,DPR,0,0);
@@ -1320,7 +1327,7 @@ $('#genBtn').addEventListener('click',async()=>{
     adopt(b2,'generated_'+n+'ch_test.wav');
   }catch(e){console.error(e);toast('GENERATED WAV DECODE FAILED');}
 });
-  EL.helpBtn.addEventListener('click',()=>openModal('help'));
+EL.helpBtn.addEventListener('click',()=>openModal('help'));
 vid.addEventListener('ended',()=>{if(kind==='media'&&!state.loop){state.playing=false;syncPlayIcon();setStatus('PAUSED','');}});
 CH.forEach((c,i)=>{
   const o1=document.createElement('option');o1.value=i;o1.textContent=c.id;EL.toneCh.appendChild(o1);
@@ -1428,9 +1435,16 @@ help:{tag:'FIELD MANUAL',title:'Routing, tools & meters',html:`
   <h4>VIEW PANEL</h4>
   <ul><li><b>SPEAKERS / LABELS / RADAR</b> — show-hide layers</li>
   <li><b>ATMOS</b> — on 5.1/7.1 sources it derives 4 height speakers + Voice-of-God from the mains; on 5.1.4 / 7.1.4 sources the file's real height channels play discretely and the toggle switches on automatically</li>
-  <li><b>BINAURAL</b> — swaps the chair for a head with a virtual speaker ring</li></ul>
+  <li><b>BINAURAL</b> — swaps the chair for a head with a virtual speaker ring</li>
+  <li><b>REFLECT</b> — draws first-order reflection paths and wall hit points; the ROOM list shows each speaker's two earliest reflections in ms (put absorption panels there)</li></ul>
+  <h4>ROOM · REFLECTIONS · IR</h4>
+  <ul><li><b>WIDTH / DEPTH / HEIGHT</b> — your real room dimensions drive both the reflection readout and the exported impulse response</li>
+  <li><b>RT60</b> — reverberation time of the exported IR tail</li>
+  <li><b>EXPORT IR WAV</b> — 6-channel float32 impulse response (direct spikes + wall reflections + decaying tail) for DAWs and convolution processors</li>
+  <li><b>ADM BWF</b> — loading an Atmos ADM file parses its AXML and draws moving object orbs with trails; live az/el shown in the ADM OBJECTS list</li></ul>
   <h4>FIELD TOOLS</h4>
-  <ul><li><b>TONE</b> — pink noise / 440 Hz / 20→20k sweep into any bus (works with no file); CYCLE rotates channels</li>
+  <ul><li><b>GENERATE WAV</b> — synthesizes a 2.0 / 5.1 / 7.1.4 test file in-browser and loads it</li>
+  <li><b>TONE</b> — pink noise / 440 Hz / 20→20k sweep into any bus; CYCLE rotates channels</li>
   <li><b>POLARITY ±</b> — invert any bus to test speaker wiring</li>
   <li><b>DISTANCE → AVR DELAY</b> — metres in, ms + receiver delay out</li></ul>
   <h4>METERS</h4>
@@ -1446,7 +1460,7 @@ tos:{tag:'LEGAL · EFFECTIVE '+YEAR,title:'Terms of Service',html:`
   <h4>1 · AGREEMENT</h4><p>These Terms govern your use of <b>Surround-field</b>. By loading the page you accept them.</p>
   <h4>2 · THE SERVICE</h4><p>A client-side audio/video visualizer and metering tool. All processing happens locally. Local &amp; Serverless. No file is sent to a server.</p>
   <h4>3 · YOUR CONTENT</h4><p>Only load media you own or are licensed to use. You are solely responsible for it.</p>
-  <h4>4 · INTELLECTUAL PROPERTY</h4><p>Code, design and text © ${YEAR} Surround-field, licensed under <b>Apache-2.0 + Commons Clause</b> — see <a href="#" data-open="license">License</a>.</p>
+  <h4>4 · INTELLECTUAL PROPERTY</h4><p>Code, design and text © ${YEAR} Surround-field, licensed under <b>GNU AGPL v3.0</b> — see <a href="#" data-open="license">License</a>.</p>
   <h4>5 · NO WARRANTY</h4><p>THE APP IS PROVIDED "AS IS" WITHOUT WARRANTY OF ANY KIND. Meters are indicative, not certified. See <a href="#" data-open="disclaimer">Disclaimer</a>.</p>
   <h4>6 · LIMITATION OF LIABILITY</h4><p>To the maximum extent permitted by law, Surround-field is not liable for any damages, including hearing injury, equipment damage or data loss.</p>
   <h4>7 · CONTACT</h4><p><a href="mailto:${CONTACT}">${CONTACT}</a></p>`},
@@ -1470,16 +1484,13 @@ but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 GNU Affero General Public License for more details.</div>
   <h4>WHAT THIS MEANS</h4>
-  <ul>
-    <li><b>You MAY</b> use, modify, and redistribute this software freely.</li>
-    <li><b>You MUST</b> share the source code of any modifications if you distribute the software or provide it as a network service.</li>
-    <li><b>You MUST</b> keep this license and copyright notice intact.</li>
-    <li><b>You MUST</b> state any changes you made.</li>
-  </ul>
+  <ul><li><b>You MAY</b> use, modify, and redistribute this software freely, even commercially.</li>
+  <li><b>You MUST</b> share the source code of any modifications if you distribute the software or provide it as a network service.</li>
+  <li><b>You MUST</b> keep this license and copyright notice intact and state any changes you made.</li></ul>
   <h4>WHY AGPL?</h4>
   <p>The AGPL ensures that even if someone hosts a modified version of this app on a server, users of that service can still access the source code. This protects the open-source nature of the project.</p>
   <h4>FULL TEXT</h4>
-  <p>Read the complete license: <a href="https://www.gnu.org/licenses/agpl-3.0.html" target="_blank" rel="noopener">gnu.org/licenses/agpl-3.0</a></p>`},
+  <p><a href="https://www.gnu.org/licenses/agpl-3.0.html" target="_blank" rel="noopener">gnu.org/licenses/agpl-3.0</a></p>`},
 disclaimer:{tag:'SAFETY',title:'Audio & Hardware Disclaimer',html:`
   <h4>HEARING</h4><p>Tone generator, sweeps and LFE content reach high levels quickly. Prolonged exposure above ~85 dB SPL causes permanent damage. Start quiet.</p>
   <h4>EQUIPMENT</h4><p>Sine sweeps and pink noise at high gain can destroy tweeters and subwoofers. Ramp levels slowly; never test wiring at volume. Surround-field is not responsible for hardware damage.</p>
@@ -1535,6 +1546,196 @@ EL.modal.addEventListener('click',e=>{if(e.target===EL.modal)closeModal();});
 document.addEventListener('click',e=>{const b=e.target.closest('[data-open]');
   if(b){e.preventDefault();openModal(b.dataset.open);}});
 
+/* ===== 8b · V2: room reflections · ADM objects · IR export (self-injecting UI) ===== */
+$('#rail').insertAdjacentHTML('beforeend','<div class="sect"><div class="sect-h"><span>ROOM &amp; REFLECTIONS</span><b id="reflState">OFF</b></div><div class="mix"><div class="slider"><label>WIDTH</label><output id="oRoomW">4.60m</output><input type="range" id="sRoomW" min="2.5" max="8" step="0.05" value="4.6"></div><div class="slider"><label>DEPTH</label><output id="oRoomD">5.60m</output><input type="range" id="sRoomD" min="2.5" max="10" step="0.05" value="5.6"></div><div class="slider"><label>HEIGHT</label><output id="oRoomH">2.70m</output><input type="range" id="sRoomH" min="2.2" max="4" step="0.05" value="2.7"></div><div class="slider"><label>RT60</label><output id="oRt60">0.40s</output><input type="range" id="sRt60" min="0.1" max="1.5" step="0.01" value="0.4"></div></div><div class="trow" style="padding:0 14px 10px"><button class="tbtn" id="irBtn">EXPORT IR WAV (6CH FLOAT)</button></div><dl class="info" id="reflList"></dl></div><div class="sect" id="admSect" style="border:none" hidden><div class="sect-h"><span>ADM OBJECTS</span><b id="admCount">0</b></div><dl class="info" id="admList"></dl></div>');
+$('.settings').insertAdjacentHTML('beforeend','<div class="srow"><span>REFLECT</span><div class="tgl" id="tgRefl"></div></div>');
+const room={w:4.6,d:5.6,h:2.7};
+let rt60=0.4, showRefl=false, adm=null;
+const admTrails=[];
+const LISTEN=[0,0.95,0];
+const dist3=(a,b)=>Math.hypot(a[0]-b[0],a[1]-b[1],a[2]-b[2]);
+function reflFor(P){
+  const L=LISTEN,out=[],dDir=dist3(P,L);
+  const imgs=[
+    {I:[room.w-P[0],P[1],P[2]], surf:'R-WALL',pl:'x',v:room.w/2, coef:.55},
+    {I:[-room.w-P[0],P[1],P[2]],surf:'L-WALL',pl:'x',v:-room.w/2,coef:.55},
+    {I:[P[0],P[1],room.d-P[2]], surf:'B-WALL',pl:'z',v:room.d/2, coef:.55},
+    {I:[P[0],P[1],-room.d-P[2]],surf:'F-WALL',pl:'z',v:-room.d/2,coef:.55},
+    {I:[P[0],2*room.h-P[1],P[2]],surf:'CEIL', pl:'y',v:room.h,   coef:.50},
+    {I:[P[0],-P[1],P[2]],       surf:'FLOOR',pl:'y',v:0,        coef:.40}];
+  for(const m of imgs){
+    const dx=L[0]-m.I[0],dy=L[1]-m.I[1],dz=L[2]-m.I[2];
+    const den=m.pl==='x'?dx:m.pl==='y'?dy:dz;
+    if(Math.abs(den)<1e-9)continue;
+    const num=m.pl==='x'?(m.v-m.I[0]):m.pl==='y'?(m.v-m.I[1]):(m.v-m.I[2]);
+    const s=num/den; if(s<=0.02||s>=0.98)continue;
+    const R=[m.I[0]+dx*s,m.I[1]+dy*s,m.I[2]+dz*s];
+    if(m.pl==='x'&&(R[1]<0||R[1]>room.h||Math.abs(R[2])>room.d/2))continue;
+    if(m.pl==='z'&&(R[1]<0||R[1]>room.h||Math.abs(R[0])>room.w/2))continue;
+    if(m.pl==='y'&&(Math.abs(R[0])>room.w/2||Math.abs(R[2])>room.d/2))continue;
+    const path=dist3(m.I,L);
+    out.push({R,path,gain:m.coef*(dDir/path),delta:(path-dDir)/343*1000,surf:m.surf});
+  }
+  out.sort((a,b)=>a.delta-b.delta);
+  return out;
+}
+function renderRoomRefl(){
+  const hw=room.w/2,hd=room.d/2,hh=room.h;
+  const C=[[-hw,0,-hd],[hw,0,-hd],[hw,0,hd],[-hw,0,hd],[-hw,hh,-hd],[hw,hh,-hd],[hw,hh,hd],[-hw,hh,hd]];
+  const E=[[0,1],[1,2],[2,3],[3,0],[4,5],[5,6],[6,7],[7,4],[0,4],[1,5],[2,6],[3,7]];
+  g2.lineWidth=1;g2.strokeStyle='rgba(146,178,214,.10)';
+  for(const e of E){const s=screenSeg(C[e[0]],C[e[1]]);if(!s)continue;
+    g2.beginPath();g2.moveTo(s[0][0],s[0][1]);g2.lineTo(s[1][0],s[1][1]);g2.stroke();}
+  if(!showRefl)return;
+  g2.globalCompositeOperation='lighter';
+  for(let e=0;e<EN.length;e++){const c=CH[EN[e]];
+    const rs=reflFor(c.pos);
+    for(let k=0;k<rs.length;k++){const r=rs[k];
+      const a=screenSeg(c.pos,r.R),b=screenSeg(r.R,LISTEN);
+      g2.strokeStyle='rgba('+c.rgbStr+',.14)';g2.lineWidth=1;
+      if(a){g2.beginPath();g2.moveTo(a[0][0],a[0][1]);g2.lineTo(a[1][0],a[1][1]);g2.stroke();}
+      if(b){g2.beginPath();g2.moveTo(b[0][0],b[0][1]);g2.lineTo(b[1][0],b[1][1]);g2.stroke();}
+      const q=proj(view(r.R));
+      if(q[2]>NEAR){const R=Math.max(2,q[3]*0.03*(0.5+r.gain));
+        g2.fillStyle='rgba('+c.rgbStr+','+(0.25+r.gain*0.5)+')';
+        g2.beginPath();g2.arc(q[0],q[1],R,0,TAU);g2.fill();}}
+  }
+  g2.globalCompositeOperation='source-over';
+}
+function parseTs(s){const m=String(s).match(/(\d+):(\d+):(\d+(?:\.\d+)?)/);return m?+m[1]*3600+ +m[2]*60+ +m[3]:0;}
+function parseADM(raw){
+  try{
+    const dv=new DataView(raw);let off=12,xml=null;
+    while(off<raw.byteLength-8){
+      const id=String.fromCharCode(dv.getUint8(off),dv.getUint8(off+1),dv.getUint8(off+2),dv.getUint8(off+3));
+      const sz=dv.getUint32(off+4,true);
+      if(id==='axml'){xml=new TextDecoder('utf-8').decode(new Uint8Array(raw,off+8,sz));break;}
+      off+=8+sz+(sz%2);
+    }
+    if(!xml)return null;
+    const doc=new DOMParser().parseFromString(xml,'application/xml');
+    const blocks=new Map();
+    doc.querySelectorAll('audioChannelFormat').forEach(acf=>{
+      if((acf.getAttribute('typeDefinition')||'')!=='position')return;
+      const list=[];
+      acf.querySelectorAll('audioBlockFormat').forEach(ab=>{
+        const pos={};
+        ab.querySelectorAll('position').forEach(p=>{pos[p.getAttribute('coordinate')]=parseFloat(p.textContent)||0;});
+        list.push({t:parseTs(ab.getAttribute('offset')||'0'),dur:parseTs(ab.getAttribute('duration')||'0'),
+          az:pos.azimuth||0,el:pos.elevation||0,dist:pos.distance==null?1:pos.distance});
+      });
+      if(list.length)blocks.set(acf.getAttribute('audioChannelFormatID'),
+        {name:acf.getAttribute('audioChannelFormatName')||'OBJ',list:list.sort((a,b)=>a.t-b.t)});
+    });
+    doc.querySelectorAll('audioObject').forEach(ao=>{
+      const nm=ao.getAttribute('audioObjectName')||'Object';
+      ao.querySelectorAll('audioPackFormatIDRef').forEach(r=>{
+        const pf=doc.querySelector('audioPackFormat[audioPackFormatID="'+r.textContent.trim()+'"]');
+        if(pf)pf.querySelectorAll('audioChannelFormatIDRef').forEach(cr=>{
+          const cid=cr.textContent.trim(); if(blocks.has(cid))blocks.get(cid).name=nm;});
+      });
+    });
+    const objs=[];blocks.forEach(v=>objs.push({name:v.name,blocks:v.list}));
+    return objs.length?{objects:objs}:null;
+  }catch(e){console.warn('ADM parse failed',e);return null;}
+}
+function admPos(o,t){
+  const bs=o.blocks;if(!bs.length)return null;
+  let cur=bs[0],nxt=null;
+  for(let i=0;i<bs.length;i++){if(bs[i].t<=t){cur=bs[i];nxt=bs[i+1]||null;}else break;}
+  if(!nxt||cur.dur<=0)return cur;
+  const u=clamp((t-cur.t)/Math.max(cur.dur,1e-6),0,1);
+  return {az:lerp(cur.az,nxt.az,u),el:lerp(cur.el,nxt.el,u),dist:lerp(cur.dist,nxt.dist,u)};
+}
+function admOrbs(t){
+  if(!adm)return;
+  const tp=position();
+  g2.globalCompositeOperation='lighter';
+  for(let i=0;i<adm.objects.length;i++){
+    const p=admPos(adm.objects[i],tp);if(!p)continue;
+    const el=p.el*D2R,az=p.az*D2R,r=1.1+(p.dist||1)*1.4;
+    const P=[Math.sin(az)*Math.cos(el)*r,1.15+Math.sin(el)*r*0.9,Math.cos(az)*Math.cos(el)*r];
+    const tr=admTrails[i]||(admTrails[i]=[]);
+    tr.push(P);if(tr.length>40)tr.shift();
+    for(let k=1;k<tr.length;k++){const s=screenSeg(tr[k-1],tr[k]);if(!s)continue;
+      g2.strokeStyle='rgba(255,181,69,'+(0.05+0.25*k/tr.length)+')';g2.lineWidth=1;
+      g2.beginPath();g2.moveTo(s[0][0],s[0][1]);g2.lineTo(s[1][0],s[1][1]);g2.stroke();}
+    const q=proj(view(P));
+    if(q[2]>NEAR){const R=Math.max(3,q[3]*0.06);
+      const gr=g2.createRadialGradient(q[0],q[1],0,q[0],q[1],R*3);
+      gr.addColorStop(0,'rgba(255,220,140,.9)');gr.addColorStop(.4,'rgba(255,181,69,.35)');gr.addColorStop(1,'rgba(255,181,69,0)');
+      g2.fillStyle=gr;g2.beginPath();g2.arc(q[0],q[1],R*3,0,TAU);g2.fill();
+      g2.fillStyle='#ffe0a0';g2.beginPath();g2.arc(q[0],q[1],R*.5,0,TAU);g2.fill();
+      if(state.showTags){g2.font='600 9px "IBM Plex Mono",monospace';g2.fillStyle='rgba(255,224,160,.8)';
+        g2.textAlign='center';g2.fillText(adm.objects[i].name,q[0],q[1]-R*3-4);}}
+  }
+  g2.globalCompositeOperation='source-over';
+}
+function addSpike(a,tSec,amp){const x=tSec*actx.sampleRate,i=Math.floor(x),f=x-i;
+  if(i<a.length)a[i]+=amp*(1-f); if(i+1<a.length)a[i+1]+=amp*f;}
+function downloadWavFloat(chs,sr,name){
+  const nch=chs.length,N=chs[0].length,dataLen=N*nch*4,total=68+dataLen;
+  const ab=new ArrayBuffer(total),dv=new DataView(ab),u8=new Uint8Array(ab);
+  const ws=(o,s)=>{for(let i=0;i<s.length;i++)u8[o+i]=s.charCodeAt(i);};
+  ws(0,'RIFF');dv.setUint32(4,total-8,true);ws(8,'WAVE');
+  ws(12,'fmt ');dv.setUint32(16,40,true);dv.setUint16(20,0xFFFE,true);dv.setUint16(22,nch,true);
+  dv.setUint32(24,sr,true);dv.setUint32(28,sr*nch*4,true);dv.setUint16(32,nch*4,true);
+  dv.setUint16(34,32,true);dv.setUint16(36,22,true);dv.setUint16(38,3,true);
+  dv.setUint32(40,0x60F,true);
+  const guid=[0x03,0x00,0x00,0x00,0x00,0x00,0x10,0x00,0x80,0x00,0x00,0xAA,0x00,0x38,0x9B,0x71];
+  for(let i=0;i<16;i++)u8[44+i]=guid[i];
+  ws(60,'data');dv.setUint32(64,dataLen,true);
+  const f32=new Float32Array(ab,68,N*nch);
+  for(let n=0;n<N;n++)for(let c=0;c<nch;c++)f32[n*nch+c]=chs[c][n];
+  const b=new Blob([ab],{type:'audio/wav'}),a=document.createElement('a');
+  a.href=URL.createObjectURL(b);a.download=name;a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href),4000);
+  toast('IR WAV EXPORTED · 6CH FLOAT32');
+}
+function exportIR(){
+  ensureCtx();
+  const sr=actx.sampleRate;
+  const dM=delayInputs.map(x=>clamp(+x.inp.value||1,.5,12));
+  const maxD=Math.max.apply(null,dM)/343;
+  const T=Math.min(4,rt60+maxD+0.15),N=Math.ceil(sr*T);
+  const chs=[];for(let c=0;c<6;c++)chs.push(new Float32Array(N));
+  for(let i=0;i<6;i++){
+    const P=CH[i].pos,dDir=dist3(P,LISTEN)/343,g0=1/Math.max(dist3(P,LISTEN),.3);
+    addSpike(chs[i],dDir,g0);
+    const rs=reflFor(P);
+    for(let k=0;k<rs.length;k++)addSpike(chs[i],rs[k].path/343,g0*rs[k].gain);
+    const n0=Math.floor((dDir+0.012)*sr),decayStep=6.91/(rt60*sr);
+    let lp=0,seed=i*7919+13;
+    for(let n=n0;n<N;n++){
+      seed=(seed*1103515245+12345)&0x7fffffff;
+      const w=(seed/0x7fffffff)*2-1;
+      lp+=(w-lp)*0.18;
+      chs[i][n]+=lp*g0*0.35*Math.exp(-decayStep*(n-n0)/sr);
+    }
+  }
+  let pk=0;for(let c=0;c<6;c++)for(let n=0;n<N;n+=7){const v=Math.abs(chs[c][n]);if(v>pk)pk=v;}
+  if(pk>0){const g=0.9/pk;for(let c=0;c<6;c++)for(let n=0;n<N;n++)chs[c][n]*=g;}
+  downloadWavFloat(chs,sr,'surround-field_IR_rt'+rt60.toFixed(2)+'.wav');
+}
+const RL=$('#reflList'),AL=$('#admList'),RS=$('#reflState');
+$('#sRoomW').addEventListener('input',e=>{room.w=+e.target.value;$('#oRoomW').textContent=room.w.toFixed(2)+'m';});
+$('#sRoomD').addEventListener('input',e=>{room.d=+e.target.value;$('#oRoomD').textContent=room.d.toFixed(2)+'m';});
+$('#sRoomH').addEventListener('input',e=>{room.h=+e.target.value;$('#oRoomH').textContent=room.h.toFixed(2)+'m';});
+$('#sRt60').addEventListener('input',e=>{rt60=+e.target.value;$('#oRt60').textContent=rt60.toFixed(2)+'s';});
+$('#tgRefl').addEventListener('click',e=>{showRefl=!showRefl;
+  e.currentTarget.classList.toggle('on',showRefl);RS.textContent=showRefl?'ON':'OFF';});
+$('#irBtn').addEventListener('click',()=>exportIR());
+function v2Tick(){
+  if(showRefl){let h='';
+    for(let e=0;e<EN.length&&e<6;e++){const c=CH[EN[e]],rs=reflFor(c.pos);
+      h+='<div><dt>'+c.id+'</dt><dd>'+rs.slice(0,2).map(r=>r.surf+' '+r.delta.toFixed(1)+'ms').join(' · ')+'</dd></div>';}
+    RL.innerHTML=h;}
+  if(adm){const tp=position();let h='';
+    for(let i=0;i<adm.objects.length;i++){const p=admPos(adm.objects[i],tp);
+      h+='<div><dt>'+adm.objects[i].name.slice(0,14)+'</dt><dd>'+(p?p.az.toFixed(0)+'° / '+p.el.toFixed(0)+'°':'—')+'</dd></div>';}
+    AL.innerHTML=h;}
+}
+
 /* ===== 9 · boot + loop ===== */
 (function parseState(){const p=new URLSearchParams(location.hash.slice(1));
   if(p.has('c')){state.center=clamp(+p.get('c')||.65,0,1);EL.sCenter.value=state.center;EL.oCenter.textContent=state.center.toFixed(2);}
@@ -1555,7 +1756,7 @@ function frame(now){
       if(EN.length){tone.ch=EN[(EN.indexOf(tone.ch)+1)%EN.length];EL.toneCh.value=tone.ch;
         toneConnect();syncToneUI();}}}
   uiT+=dt;
-  if(uiT>.09){uiT=0;
+  if(uiT>.09){uiT=0;v2Tick();
     for(let e=0;e<EN.length;e++){const c=CH[EN[e]];
       rowEls[EN[e]]._db.textContent=c.mute?'MUTE':(c.db<=-99?'-∞':c.db.toFixed(1));}
     EL.tCur.textContent=fmtTime(position());
