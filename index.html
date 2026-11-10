@@ -1457,25 +1457,29 @@ privacy:{tag:'PRIVACY',title:'Privacy Policy',html:`
   <h4>LOCAL STORAGE</h4><p>One key, <code>mv_consent</code>, remembers the cookie-banner choice.</p>
   <h4>THIRD PARTIES</h4><p>Google Fonts serves typography under Google's privacy policy; the Fonts API sets no cookies. Self-host fonts for zero third-party requests.</p>
   <h4>CONTACT</h4><p><a href="mailto:${CONTACT}">${CONTACT}</a></p>`},
-license:{tag:'LICENSE',title:'Apache-2.0 + Commons Clause',html:`
+license:{tag:'LICENSE',title:'GNU AGPL v3.0',html:`
   <div class="prebox">Copyright (c) ${YEAR} "Surround-field"
 
-Surround-field Surround Visualizer (the "Software") is licensed under
-the Apache License, Version 2.0, subject to the Commons Clause
-condition (collectively, "Apache-2.0 + Commons Clause").</div>
-  <h4>YOU MAY</h4><p>Use, modify and redistribute, commercially or not, keeping the notice, stating changes and including the license text.</p>
-  <h4>YOU MAY NOT</h4><p><b>Sell the Software itself</b> — charge third parties for a product or service whose value derives entirely or substantially from its functionality (including paid hosting or support around it). Embedding in a larger product of your own remains permitted.</p>
-  <h4>COMMONS CLAUSE (VERBATIM)</h4>
-  <div class="prebox">"Commons Clause" License Condition
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
 
-Without limiting other conditions in the License, the grant of rights under the License will not include, and the License does not grant to you, the right to Sell the Software.
-
-For purposes of the foregoing, "Sell" means practicing any or all of the rights granted to you under the License to provide to third parties, for a fee or other consideration (including without limitation fees for hosting or consulting/support services related to the Software), a product or service whose value derives, entirely or substantially, from the functionality of the Software. Any license notice or attribution required by the License must also include this Commons Clause License Condition notice.
-
-Software: Surround-field Surround Visualizer
-License:  Apache License, Version 2.0
-Licensor: Surround-field</div>
-  <h4>APACHE 2.0</h4><p>Full text: <a href="https://www.apache.org/licenses/LICENSE-2.0" target="_blank" rel="noopener">apache.org/licenses/LICENSE-2.0</a>.</p>`},
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU Affero General Public License for more details.</div>
+  <h4>WHAT THIS MEANS</h4>
+  <ul>
+    <li><b>You MAY</b> use, modify, and redistribute this software freely.</li>
+    <li><b>You MUST</b> share the source code of any modifications if you distribute the software or provide it as a network service.</li>
+    <li><b>You MUST</b> keep this license and copyright notice intact.</li>
+    <li><b>You MUST</b> state any changes you made.</li>
+  </ul>
+  <h4>WHY AGPL?</h4>
+  <p>The AGPL ensures that even if someone hosts a modified version of this app on a server, users of that service can still access the source code. This protects the open-source nature of the project.</p>
+  <h4>FULL TEXT</h4>
+  <p>Read the complete license: <a href="https://www.gnu.org/licenses/agpl-3.0.html" target="_blank" rel="noopener">gnu.org/licenses/agpl-3.0</a></p>`},
 disclaimer:{tag:'SAFETY',title:'Audio & Hardware Disclaimer',html:`
   <h4>HEARING</h4><p>Tone generator, sweeps and LFE content reach high levels quickly. Prolonged exposure above ~85 dB SPL causes permanent damage. Start quiet.</p>
   <h4>EQUIPMENT</h4><p>Sine sweeps and pink noise at high gain can destroy tweeters and subwoofers. Ramp levels slowly; never test wiring at volume. Surround-field is not responsible for hardware damage.</p>
@@ -1504,7 +1508,7 @@ oss:{tag:'CREDITS',title:'Open Source Attributions',html:`
   <li><b>IBM Plex Sans / Mono</b> — © IBM Corp., OFL-1.1 via Google Fonts</li></ul>
   <h4>PLATFORM APIS</h4><ul><li>Web Audio API — W3C</li><li>HTMLMediaElement + Media Element Source — WHATWG/W3C</li>
   <li>Canvas 2D — WHATWG</li><li>File/ArrayBuffer, Pointer Events, ResizeObserver — WHATWG/W3C</li></ul>
-  <p>Loudness weighting follows ITU-R BS.1770; speaker geometry follows ITU-R BS.775. Demo signals synthesized at runtime. App license: <a href="#" data-open="license">Apache-2.0 + Commons Clause</a>.</p>`},
+  <p>Loudness weighting follows ITU-R BS.1770; speaker geometry follows ITU-R BS.775. Demo signals synthesized at runtime. App license: <a href="#" data-open="license">GNU AGPL v3.0</a>.</p>`},
 security:{tag:'SECURITY',title:'Threat Model & Hardening',html:`
   <p>Serverless: no backend to DDoS, no database to breach.</p>
   <h4>BUILT IN</h4><ul><li><b>CSP</b>: no remote scripts, <code>connect-src 'none'</code>, fonts CDN + blob media only</li>
