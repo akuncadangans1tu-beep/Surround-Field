@@ -6,19 +6,19 @@
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; media-src 'self' blob:; connect-src 'none'">
 <meta name="referrer" content="no-referrer">
 <title>Surround-field — Multi-Channel Audio Visualizer</title>
-<meta property="og:type"        content="website">
-<meta property="og:site_name"   content="Surround-field">
-<meta property="og:title"       content="Surround-field — 3D Surround Sound Visualizer">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Surround-field">
+<meta property="og:title" content="Surround-field — 3D Surround Sound Visualizer">
 <meta property="og:description" content="A serverless, in-browser 5.1/7.1 audio visualizer. Drop any audio or video file and watch the sound field move around a 3D listening room. No uploads, no tracking.">
-<meta property="og:url"         content="https://surround-field.is-a.dev/">
-<meta property="og:image"       content="https://surround-field.is-a.dev/og-cover.png">
-<meta property="og:image:width"  content="1200">
+<meta property="og:url" content="https://surround-field.is-a.dev/">
+<meta property="og:image" content="https://surround-field.is-a.dev/og-cover.png">
+<meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt"   content="3D listening room with six glowing speakers surrounding a chair, reacting to audio">
-<meta name="twitter:card"        content="summary_large_image">
-<meta name="twitter:title"       content="Surround-field — 3D Surround Sound Visualizer">
+<meta property="og:image:alt" content="3D listening room with six glowing speakers surrounding a chair, reacting to audio">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Surround-field — 3D Surround Sound Visualizer">
 <meta name="twitter:description" content="Serverless 5.1/7.1 audio visualizer in a single HTML file. Drop a file, watch the room react.">
-<meta name="twitter:image"       content="https://surround-field.is-a.dev/og-cover.png">
+<meta name="twitter:image" content="https://surround-field.is-a.dev/og-cover.png">
 <meta name="theme-color" content="#070910">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'><circle cx='20' cy='20' r='4' fill='%23ffb545'/><path d='M27 13a10 10 0 0 1 0 14M13 27a10 10 0 0 1 0-14' stroke='%233fe0ff' stroke-width='3' fill='none' stroke-linecap='round'/><path d='M32 8a17 17 0 0 1 0 24M8 32A17 17 0 0 1 8 8' stroke='%23ff3f8e' stroke-width='2.5' fill='none' stroke-linecap='round' opacity='.8'/></svg>">
 <meta name="description" content="Surround-field: a local, serverless multi-channel (1.0–7.1.4) audio visualizer with auto-routing, LUFS metering, room reflections and IR export.">
@@ -417,7 +417,7 @@ kbd{font-family:var(--mono);font-size:10px;background:#0a0e15;border:1px solid v
       <button data-open="cookies">COOKIES</button><button data-open="oss">OPEN SOURCE</button><button data-open="security">SECURITY</button>
       <button data-open="contact">CONTACT</button><button data-open="help">HELP</button>
     </nav>
-    <span class="cright">© <span id="year"></span> Surround-field · v<span id="ver">0</span></span>
+    <span class="cright">© <span id="year"></span> Surround-field · v<span id="ver">2.0.0</span></span>
   </footer>
 </div>
 
@@ -438,7 +438,7 @@ kbd{font-family:var(--mono);font-size:10px;background:#0a0e15;border:1px solid v
 
 <script>
 "use strict";
-/* ===== 0 · helpers, element cache, guards ===== */
+const APP_VERSION='2.0.0';
 const $=s=>document.querySelector(s);
 const EL={};
 (function cacheEls(){const ids=['topbar','stage','stageWrap','radar','radarSect','rack','seek','vid','videoBox','vbHide','videoBtn',
@@ -446,7 +446,7 @@ const EL={};
  'loopBtn','monBtn','pngBtn','csvBtn','shareBtn','ejectBtn','vol','fileIn','loadBtn','demoBtn','helpBtn','railToggle','railClose',
  'scrim','rail','rackMode','mxState','focusRead','stFront','stSurr','stLfe','corrVal','corrFill','lufsRead','gonio','spec','specCh',
  'sCenter','oCenter','sSpread','oSpread','sLfe','oLfe','toneState','toneType','toneCh','toneBtn','toneCyc','toneLvl','polGrid',
- 'delayGrid','iName','iCh','iLayout','iRoute','iOut','tgCabs','tgTags','tgRadar','tgAtmos','tgBin','camPresets','year','cookieBar',
+ 'delayGrid','iName','iCh','iLayout','iRoute','iOut','tgCabs','tgTags','tgRadar','tgAtmos','tgBin','camPresets','year','ver','cookieBar',
  'cookieOk','modal','modalTag','modalTitle','modalBody','modalClose','toast'];
  for(let i=0;i<ids.length;i++)EL[ids[i]]=document.getElementById(ids[i]);})();
 const clamp=(v,a,b)=>v<a?a:v>b?b:v, lerp=(a,b,t)=>a+(b-a)*t;
@@ -459,7 +459,6 @@ function rateOK(){const n=Date.now();decodeTimes=decodeTimes.filter(t=>n-t<6000)
 window.addEventListener('error',()=>{if(!window.__e){window.__e=1;toast('RUNTIME ERROR — see console.');}});
 const REDUCED=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-/* ===== 1 · channels & auto layout ===== */
 const CH=[
  {id:'FL',name:'Front Left',az:-30,r:2.55,h:1.12,col:'#3fe0ff'},
  {id:'FR',name:'Front Right',az:30,r:2.55,h:1.12,col:'#ff7a5c'},
@@ -497,7 +496,6 @@ function autoLayout(n){
   buildLegend(); refreshRack();
 }
 
-/* ===== 2 · audio engine ===== */
 let actx=null,buffer=null,src=null,splitter=null,master=null,limiter=null,merger=null;
 let busIn=[],phaseN=[],userG=[],ana=[],td=[],fd=[],live=[],bandMap=null,peaks=null,seekCache=null;
 let lufeAna=[],ltd=[],lufeRms=new Float32Array(6),lufsV=-99;
@@ -694,7 +692,6 @@ function applyGains(){
     if(userG[i])userG[i].gain.setTargetAtTime(on?1:0,actx.currentTime,.015);}
 }
 
-/* ===== 2b · tone generator ===== */
 const tone={on:false,type:'pink',ch:0,level:.35,cycle:false,cycT:0,src:null,out:null};
 let pinkBuf=null,sweepBuf=null;
 function makePink(){const n=actx.sampleRate*2,b=actx.createBuffer(1,n,actx.sampleRate),d=b.getChannelData(0);
@@ -716,7 +713,6 @@ function toneStop(){stopToneSrc();if(tone.out){try{tone.out.disconnect()}catch(e
 function syncToneUI(){EL.toneBtn.textContent=tone.on?'TONE OFF':'TONE ON';EL.toneBtn.classList.toggle('on',tone.on);
   EL.toneState.textContent=(tone.on?'TONE ON · ':'TONE OFF · ')+CH[tone.ch].id;}
 
-/* ===== 3 · loading ===== */
 async function loadFile(file){
   if(!rateOK()){toast('TOO MANY LOADS — abuse guard, wait a few seconds.');return;}
   const ext=(file.name.split('.').pop()||'').toLowerCase();
@@ -808,7 +804,6 @@ function computePeaks(){
   seekCache=null;
 }
 
-/* ===== 3b · in-browser multichannel test WAV generator ===== */
 function makeTestWav(nch){
   const sr=48000,N=sr*6,freqs=[220,277,330,40,440,554,660,880,1000,1200,1400,1600];
   const data=new Int16Array(N*nch);
@@ -834,7 +829,6 @@ function makeTestWav(nch){
   return new Blob([ab],{type:'audio/wav'});
 }
 
-/* ===== 4 · analysis ===== */
 let totalE=0,frontE=0,surrE=0,lfeE=0,domAng=0,focus=0,corr=0;
 function analyse(dt){
   totalE=frontE=surrE=lfeE=0;let vx=0,vz=0;
@@ -884,7 +878,6 @@ function analyse(dt){
   else corr=lerp(corr,0,.05);
 }
 
-/* ===== 5 · 3D renderer ===== */
 const cv=EL.stage,g2=cv.getContext('2d',{alpha:false});
 let W=0,H=0,DPR=1,focal=800;
 const cam={yaw:0,tYaw:0,dist:6.1,tDist:6.1,h:.35,tH:.35,ty:.92,tTy:.92,pos:[0,0,0],r:[1,0,0],u:[0,1,0],f:[0,0,1]};
@@ -1142,7 +1135,6 @@ function renderScene(t,dt){
   speakers(t);admOrbs(t);drawDust(t,dt);labels();
 }
 
-/* ===== 6 · radar / rack / seek / meters ===== */
 const rg=EL.radar.getContext('2d');
 function renderRadar(t){
   if(!state.showRadar)return;
@@ -1268,7 +1260,6 @@ function renderMeters(){
     sc.fillRect(w-1,y,1,1);}
 }
 
-/* ===== 7 · UI wiring ===== */
 function setStatus(t,c){EL.statusTxt.textContent=t;EL.led.className='led'+(c?' '+c:'');}
 function syncPlayIcon(){EL.playIcon.innerHTML=state.playing?'<path d="M6 5h4v14H6zM14 5h4v14h-4z"/>':'<path d="M8 5v14l11-7z"/>';}
 function buildLegend(){let s='';for(let e=0;e<EN.length;e++){const c=CH[EN[e]];
@@ -1422,15 +1413,18 @@ window.addEventListener('keydown',e=>{
   else if(k==='?'||k==='/')EL.modal.classList.contains('on')?closeModal():openModal('help');
   else if(k==='Escape'){closeModal();setRail(false);}});
 
-/* ===== 8 · legal / consent ===== */
 const YEAR=new Date().getFullYear(),CONTACT='akuncadangans1tu@protonmail.me';
 EL.year.textContent=YEAR;
+EL.ver.textContent=APP_VERSION;
+console.log('%cSURROUND-FIELD%c v'+APP_VERSION+' · AGPL-3.0 · local & serverless',
+ 'background:#ffb545;color:#14100a;font-weight:700;padding:2px 6px;border-radius:3px',
+ 'color:#8494a9;padding:2px 4px');
 function lsGet(k){try{return localStorage.getItem(k)}catch(e){return null}}
 function lsSet(k,v){try{localStorage.setItem(k,v)}catch(e){}}
 if(!lsGet('mv_consent'))setTimeout(()=>EL.cookieBar.classList.add('on'),900);
 EL.cookieOk.addEventListener('click',()=>{lsSet('mv_consent','1');EL.cookieBar.classList.remove('on');});
 const LEGAL={
-help:{tag:'FIELD MANUAL',title:'Routing, tools & meters',html:`
+help:{tag:'FIELD MANUAL · v'+APP_VERSION,title:'Routing, tools & meters',html:`
   <p>The room rebuilds itself per source: <b>1.0</b> center only · <b>2.0</b> stereo pair (matrix derives C/SL/SR/LFE) · <b>3.0/4.0</b> missing channels added · <b>5.0</b> five + derived LFE · <b>5.1/6.1/7.1</b> full six with rears folded · <b>5.1.4 / 7.1.4</b> height channels play discretely on the top speakers. Rack rows and 3D speakers add/remove automatically; ROUTING shows the exact map.</p>
   <h4>VIEW PANEL</h4>
   <ul><li><b>SPEAKERS / LABELS / RADAR</b> — show-hide layers</li>
@@ -1546,7 +1540,6 @@ EL.modal.addEventListener('click',e=>{if(e.target===EL.modal)closeModal();});
 document.addEventListener('click',e=>{const b=e.target.closest('[data-open]');
   if(b){e.preventDefault();openModal(b.dataset.open);}});
 
-/* ===== 8b · V2: room reflections · ADM objects · IR export (self-injecting UI) ===== */
 $('#rail').insertAdjacentHTML('beforeend','<div class="sect"><div class="sect-h"><span>ROOM &amp; REFLECTIONS</span><b id="reflState">OFF</b></div><div class="mix"><div class="slider"><label>WIDTH</label><output id="oRoomW">4.60m</output><input type="range" id="sRoomW" min="2.5" max="8" step="0.05" value="4.6"></div><div class="slider"><label>DEPTH</label><output id="oRoomD">5.60m</output><input type="range" id="sRoomD" min="2.5" max="10" step="0.05" value="5.6"></div><div class="slider"><label>HEIGHT</label><output id="oRoomH">2.70m</output><input type="range" id="sRoomH" min="2.2" max="4" step="0.05" value="2.7"></div><div class="slider"><label>RT60</label><output id="oRt60">0.40s</output><input type="range" id="sRt60" min="0.1" max="1.5" step="0.01" value="0.4"></div></div><div class="trow" style="padding:0 14px 10px"><button class="tbtn" id="irBtn">EXPORT IR WAV (6CH FLOAT)</button></div><dl class="info" id="reflList"></dl></div><div class="sect" id="admSect" style="border:none" hidden><div class="sect-h"><span>ADM OBJECTS</span><b id="admCount">0</b></div><dl class="info" id="admList"></dl></div>');
 $('.settings').insertAdjacentHTML('beforeend','<div class="srow"><span>REFLECT</span><div class="tgl" id="tgRefl"></div></div>');
 const room={w:4.6,d:5.6,h:2.7};
@@ -1736,7 +1729,6 @@ function v2Tick(){
     AL.innerHTML=h;}
 }
 
-/* ===== 9 · boot + loop ===== */
 (function parseState(){const p=new URLSearchParams(location.hash.slice(1));
   if(p.has('c')){state.center=clamp(+p.get('c')||.65,0,1);EL.sCenter.value=state.center;EL.oCenter.textContent=state.center.toFixed(2);}
   if(p.has('s')){state.spread=clamp(+p.get('s')||.6,0,1);EL.sSpread.value=state.spread;EL.oSpread.textContent=state.spread.toFixed(2);}
