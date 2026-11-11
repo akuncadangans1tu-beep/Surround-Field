@@ -413,11 +413,11 @@ kbd{font-family:var(--mono);font-size:10px;background:#0a0e15;border:1px solid v
     <span class="local"><i></i>Local &amp; Serverless. No file sent to server, it's expensive.</span>
     <nav>
       <button data-open="tos">TERMS</button><button data-open="privacy">PRIVACY</button><button data-open="license">LICENSE</button>
-      <button data-open="disclaimer">AUDIO &amp; HARDWARE</button><button data-open="compat">BROWSER GUIDE</button><button data-open="dmca">DMCA</button>
+      <button data-open="disclaimer">AUDIO &amp; HARDWARE</button><button data-open="compat">BROWSER GUIDE</button><button data-open="convert">CONVERT</button><button data-open="dmca">DMCA</button>
       <button data-open="cookies">COOKIES</button><button data-open="oss">OPEN SOURCE</button><button data-open="security">SECURITY</button>
       <button data-open="contact">CONTACT</button><button data-open="help">HELP</button>
     </nav>
-    <span class="cright">© <span id="year"></span> Surround-field · v<span id="ver">2.0.0</span></span>
+    <span class="cright">© <span id="year"></span> Surround-field · v<span id="ver">2.1.0</span></span>
   </footer>
 </div>
 
@@ -438,7 +438,7 @@ kbd{font-family:var(--mono);font-size:10px;background:#0a0e15;border:1px solid v
 
 <script>
 "use strict";
-const APP_VERSION='2.0.0';
+const APP_VERSION='2.1.0';
 const $=s=>document.querySelector(s);
 const EL={};
 (function cacheEls(){const ids=['topbar','stage','stageWrap','radar','radarSect','rack','seek','vid','videoBox','vbHide','videoBtn',
@@ -486,6 +486,7 @@ const state={playing:false,loop:false,monitor:true,vol:.75,center:.65,spread:.60
  showCabs:true,showTags:true,showRadar:true,atmos:false,binaural:false,
  offset:0,startAt:0,hover:-1,resolved:'AUTO',hasAudio:false,outLabel:'—',srcN:6,pol:new Array(NCH).fill(1)};
 let kind='none';
+let pendingMedia=null;
 function autoLayout(n){
   const base=ROOM_SET[n]||['FL','FR','C','LFE','SL','SR'];
   const set=state.atmos?base.concat(HEIGHTS):base.slice();
@@ -725,7 +726,7 @@ async function loadFile(file){
     adm=parseADM(ab);admTrails.length=0;
     $('#admSect').hidden=!adm; if(adm)$('#admCount').textContent=adm.objects.length+' OBJ';
     const buf=await actx.decodeAudioData(ab);adopt(buf,file.name);}
-  catch(e){console.error(e);toast('AUDIO DECODE FAILED — trying media-element playback…');setupMedia(file);}
+  catch(e){console.error(e);pendingMedia=file;openModal('convert');}
 }
 function resetChannels(){for(let i=0;i<NCH;i++){const c=CH[i];c.mute=false;c.solo=false;c.lvl=0;c.vis=0;c.hold=0;c.rings.length=0;}}
 function adopt(buf,name){
@@ -1499,6 +1500,21 @@ compat:{tag:'SETUP',title:'Browser Compatibility & Setup',html:`
   <h4>TEST FILES</h4><div class="prebox">ffmpeg -i in.mkv -map 0:a:0 -c:a pcm_s16le -ac 6 test.wav
 ffmpeg -i in.mkv -c:v copy -c:a copy clip.mp4
 ffmpeg -i in.mkv -map 0:a:0 -c:a pcm_s24le -ac 12 test_714.wav</div>`},
+convert:{tag:'FORMAT HELP',title:'Convert to multichannel FLAC',html:`
+  <p>Your browser could not decode this file natively (common for <b>AC-3 / DTS / E-AC-3</b> inside MKV/MP4). Surround-field stays lightweight by design — it bundles no heavy decoder. Convert once on your computer to <b>multichannel FLAC</b> (lossless, up to 8 channels) or WAV, then drop the result here. Multichannel FLAC/WAV decodes natively in Chrome, Edge and Firefox.</p>
+  <h4>ONE COMMAND (FFMPEG)</h4>
+  <div class="prebox">ffmpeg -i input.mkv -map 0:a:0 -c:a flac -compression_level 8 surround.flac</div>
+  <div class="trow"><button class="tbtn" data-copy="ffmpeg -i input.mkv -map 0:a:0 -c:a flac -compression_level 8 surround.flac">COPY</button></div>
+  <h4>FORCE A SPECIFIC LAYOUT</h4>
+  <div class="prebox">ffmpeg -i input.mkv -map 0:a:0 -ac 6 -c:a flac surround_51.flac
+ffmpeg -i input.mkv -map 0:a:0 -ac 8 -c:a flac surround_71.flac
+ffmpeg -i input.mkv -map 0:a:0 -c:a pcm_s16le surround.wav</div>
+  <div class="trow"><button class="tbtn" data-copy="ffmpeg -i input.mkv -map 0:a:0 -ac 6 -c:a flac surround_51.flac">COPY 5.1</button><button class="tbtn" data-copy="ffmpeg -i input.mkv -map 0:a:0 -ac 8 -c:a flac surround_71.flac">COPY 7.1</button><button class="tbtn" data-copy="ffmpeg -i input.mkv -map 0:a:0 -c:a pcm_s16le surround.wav">COPY WAV</button></div>
+  <h4>NO FFMPEG?</h4>
+  <p>Free GUI tools do the same: <b>Shutter Encoder</b>, <b>HandBrake</b>, or <b>foobar2000</b>. Choose FLAC or WAV and keep all channels.</p>
+  <h4>JUST WANT SOUND NOW?</h4>
+  <p>You can still play the original through the browser's media element — but it folds to <b>stereo</b>, not discrete surround.</p>
+  <div class="trow"><button class="tbtn warn" data-try-stereo>TRY STEREO ANYWAY</button></div>`},
 dmca:{tag:'LEGAL',title:'Copyright Notice & DMCA Policy',html:`
   <h4>LOCAL BY DESIGN</h4><p>Surround-field hosts nothing; user files never leave the device.</p>
   <h4>CLAIMS ABOUT THE APP</h4><p>Send notices with: work identification; material location; contact details; good-faith statement; perjury-accuracy statement; signature.</p>
@@ -1537,7 +1553,14 @@ function openModal(k){const t=LEGAL[k];if(!t)return;
 function closeModal(){EL.modal.classList.remove('on');}
 EL.modalClose.addEventListener('click',closeModal);
 EL.modal.addEventListener('click',e=>{if(e.target===EL.modal)closeModal();});
-document.addEventListener('click',e=>{const b=e.target.closest('[data-open]');
+document.addEventListener('click',e=>{
+  const cp=e.target.closest('[data-copy]');
+  if(cp){e.preventDefault();const txt=cp.dataset.copy;
+    if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(txt).then(()=>toast('COMMAND COPIED')).catch(()=>toast(txt));
+    else toast(txt);return;}
+  const ts=e.target.closest('[data-try-stereo]');
+  if(ts){e.preventDefault();closeModal();if(pendingMedia){const f=pendingMedia;pendingMedia=null;setupMedia(f);}return;}
+  const b=e.target.closest('[data-open]');
   if(b){e.preventDefault();openModal(b.dataset.open);}});
 
 $('#rail').insertAdjacentHTML('beforeend','<div class="sect"><div class="sect-h"><span>ROOM &amp; REFLECTIONS</span><b id="reflState">OFF</b></div><div class="mix"><div class="slider"><label>WIDTH</label><output id="oRoomW">4.60m</output><input type="range" id="sRoomW" min="2.5" max="8" step="0.05" value="4.6"></div><div class="slider"><label>DEPTH</label><output id="oRoomD">5.60m</output><input type="range" id="sRoomD" min="2.5" max="10" step="0.05" value="5.6"></div><div class="slider"><label>HEIGHT</label><output id="oRoomH">2.70m</output><input type="range" id="sRoomH" min="2.2" max="4" step="0.05" value="2.7"></div><div class="slider"><label>RT60</label><output id="oRt60">0.40s</output><input type="range" id="sRt60" min="0.1" max="1.5" step="0.01" value="0.4"></div></div><div class="trow" style="padding:0 14px 10px"><button class="tbtn" id="irBtn">EXPORT IR WAV (6CH FLOAT)</button></div><dl class="info" id="reflList"></dl></div><div class="sect" id="admSect" style="border:none" hidden><div class="sect-h"><span>ADM OBJECTS</span><b id="admCount">0</b></div><dl class="info" id="admList"></dl></div>');
