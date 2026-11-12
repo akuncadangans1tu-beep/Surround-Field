@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval'; worker-src 'self' blob:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; media-src 'self' blob:; connect-src 'self'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' blob:; worker-src 'self' blob:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; media-src 'self' blob:; connect-src 'self'">
 <meta name="referrer" content="no-referrer">
 <title>Surround-field — Multi-Channel Audio Lab</title>
 <meta property="og:type" content="website">
@@ -16,7 +16,7 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="theme-color" content="#070910">
 <link rel="manifest" href="manifest.webmanifest">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'><circle cx='20' cy='20' r='4' fill='%23ffb545'/><path d='M27 13a10 10 0 0 1 0 14M13 27a10 10 0 0 1 0-14' stroke='%233fe0ff' stroke-width='3' fill='none' stroke-linecap='round'/><path d='M32 8a17 17 0 0 1 0 24M8 32A17 17 0 0 1 8 8' stroke='%23ff3f8e' stroke-width='2.5' fill='none' stroke-linecap='round' opacity='.8'/></svg>">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
@@ -31,9 +31,11 @@ body{background:var(--bg);color:var(--txt);font-family:var(--body);overflow:hidd
 button,input,select,textarea{font-family:inherit;color:inherit}
 button{background:none;border:none;cursor:pointer}
 ::selection{background:var(--amber);color:#111}
-*{scrollbar-width:thin;scrollbar-color:#26303e transparent}
-*::-webkit-scrollbar{width:8px;height:8px}*::-webkit-scrollbar-track{background:#0a0e15}
-*::-webkit-scrollbar-thumb{background:#232d3a;border-radius:8px}*::-webkit-scrollbar-thumb:hover{background:var(--amber)}
+*{scrollbar-width:thin;scrollbar-color:#26303e #0a0e15}
+*::-webkit-scrollbar{width:9px;height:9px}
+*::-webkit-scrollbar-track{background:#0a0e15}
+*::-webkit-scrollbar-thumb{background:#232d3a;border-radius:8px;border:2px solid #0a0e15}
+*::-webkit-scrollbar-thumb:hover{background:var(--amber)}
 .app{display:grid;grid-template-rows:auto 1fr auto auto;height:100vh;height:100dvh;min-height:0}
 .topbar{display:flex;align-items:center;gap:12px;padding:9px 14px;border-bottom:1px solid var(--line);background:linear-gradient(180deg,#0f151e,#0a0e15);position:relative;z-index:20;flex-wrap:wrap}
 .brand{display:flex;align-items:center;gap:10px;flex:0 0 auto}
@@ -93,7 +95,7 @@ button{background:none;border:none;cursor:pointer}
 .rail{border-left:1px solid var(--line);background:linear-gradient(180deg,#0d121a,#0a0e15);overflow-y:auto;overflow-x:hidden;min-height:0}
 .sect{border-bottom:1px solid var(--line)}
 .sect-h{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 13px 8px;font-family:var(--mono);font-size:9.5px;letter-spacing:.2em;color:var(--dim2)}
-.sect-h b{color:var(--amber);font-weight:500;text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:190px}
+.sect-h b{color:var(--amber);font-weight:500;text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:180px}
 .chrow{display:grid;grid-template-columns:9px 1fr auto auto;gap:6px 9px;align-items:center;padding:8px 13px 10px;border-top:1px solid var(--line2);position:relative;cursor:pointer}
 .chrow::before{content:'';position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--c);opacity:0;transition:.2s}
 .chrow:hover{background:rgba(255,255,255,.028)}.chrow:hover::before,.chrow.hot::before{opacity:1}
@@ -135,12 +137,12 @@ button{background:none;border:none;cursor:pointer}
 .delaygrid{display:grid;grid-template-columns:32px 70px 1fr;gap:5px 7px;align-items:center;font-family:var(--mono);font-size:9.5px;color:var(--dim)}
 .delaygrid input{background:#0a0f16;border:1px solid var(--line);border-radius:4px;font-family:var(--mono);font-size:9.5px;padding:4px 5px;width:100%}
 .delaygrid output{color:var(--dim2)}
-.mini-h{font-family:var(--mono);font-size:8.5px;letter-spacing:.2em;color:var(--dim2);padding:3px 0 1px}
+.mini-h{font-family:var(--mono);font-size:8.5px;letter-spacing:.16em;color:var(--dim2);padding:3px 0 1px;line-height:1.6}
 .info{padding:3px 13px 12px}
 .info div{display:flex;justify-content:space-between;gap:10px;padding:5px 0;border-bottom:1px solid var(--line2);font-size:11px}
 .info div:last-child{border:none}
 .info dt{font-family:var(--mono);font-size:9px;letter-spacing:.14em;color:var(--dim2);white-space:nowrap}
-.info dd{font-family:var(--mono);font-size:10px;text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:190px}
+.info dd{font-family:var(--mono);font-size:10px;text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:180px}
 .mix{padding:9px 13px 14px;display:grid;gap:10px}
 .slider{display:grid;grid-template-columns:1fr auto;gap:3px 8px;align-items:center}
 .slider label{font-family:var(--mono);font-size:9px;letter-spacing:.14em;color:var(--dim2)}
@@ -204,7 +206,7 @@ kbd{font-family:var(--mono);font-size:10px;background:#0a0e15;border:1px solid v
 .plist{display:grid;gap:5px;max-height:150px;overflow-y:auto}
 .pitem{display:flex;align-items:center;gap:6px;padding:6px 8px;border:1px solid var(--line);border-radius:5px;font-family:var(--mono);font-size:10px}
 .pitem span{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.pitem button{color:var(--dim2);padding:2px 5px;border-radius:3px}
+.pitem button{color:var(--dim2);padding:2px 5px;border-radius:3px;font-family:var(--mono);font-size:9px}
 .pitem button:hover{color:var(--txt);background:rgba(255,255,255,.06)}
 .pitem button.del:hover{color:#ff8d97}
 @media (max-width:900px){
@@ -321,7 +323,7 @@ kbd{font-family:var(--mono);font-size:10px;background:#0a0e15;border:1px solid v
   </div>
 
   <div class="sect">
-    <div class="sect-h"><span data-i18n="roomRefl">ROOM &amp; REFLECTIONS</span><b id="reflState">SYNTHETIC</b></div>
+    <div class="sect-h"><span data-i18n="roomRefl">ROOM &amp; REFLECTIONS</span><b id="reflState">OFF</b></div>
     <div class="mix">
       <div class="slider"><label>WIDTH</label><output id="oRoomW">4.60m</output><input type="range" id="sRoomW" min="2.5" max="9" step="0.05" value="4.6"></div>
       <div class="slider"><label>DEPTH</label><output id="oRoomD">5.60m</output><input type="range" id="sRoomD" min="2.5" max="11" step="0.05" value="5.6"></div>
@@ -337,7 +339,7 @@ kbd{font-family:var(--mono);font-size:10px;background:#0a0e15;border:1px solid v
     <div class="tools">
       <div class="trow"><label>CH</label><select id="measCh"></select><label>LEN</label><select id="measLen"><option value="2">2 s</option><option value="3" selected>3 s</option><option value="5">5 s</option></select></div>
       <div class="trow"><button class="tbtn" id="measBtn">MEASURE WITH MIC</button><button class="tbtn" id="measApply" disabled>APPLY RT60</button></div>
-      <div class="mini-h" id="measHint">Plays a log sweep, records the room, deconvolves to a real impulse response.</div>
+      <div class="mini-h">Plays a log sweep, records the room, deconvolves a real impulse response.</div>
       <dl class="info" id="measOut"></dl>
     </div>
   </div>
@@ -354,7 +356,7 @@ kbd{font-family:var(--mono);font-size:10px;background:#0a0e15;border:1px solid v
   </div>
 
   <div class="sect">
-    <div class="sect-h"><span data-i18n="signals">TEST SIGNALS</span><b id="toneState">TONE OFF</b></div>
+    <div class="sect-h"><span data-i18n="signals">TEST SIGNALS</span><b id="toneState">OFF · FL</b></div>
     <div class="tools">
       <div class="trow"><label>GEN</label><select id="genCh"><option value="2">2.0</option><option value="6" selected>5.1</option><option value="8">7.1</option><option value="12">7.1.4</option></select><button class="tbtn" id="genBtn">MAKE WAV</button></div>
       <div class="trow"><label>TYPE</label><select id="sigType">
@@ -387,7 +389,7 @@ kbd{font-family:var(--mono);font-size:10px;background:#0a0e15;border:1px solid v
   </div>
 
   <div class="sect">
-    <div class="sect-h"><span data-i18n="decoder">WASM DECODER</span><b id="decState">NOT LOADED</b></div>
+    <div class="sect-h"><span data-i18n="decoder">WASM DECODER</span><b id="decState">IDLE</b></div>
     <div class="tools">
       <div class="trow"><span class="pill" id="decPill">IDLE</span><button class="tbtn" id="decLoad">LOAD CORE</button><button class="tbtn" id="decRecipe">BUILD RECIPE</button></div>
       <div class="mini-h">Diet single-codec AC-3 / DTS core. Loads only when a native decode fails.</div>
@@ -417,7 +419,7 @@ kbd{font-family:var(--mono);font-size:10px;background:#0a0e15;border:1px solid v
       <div><dt>LAYOUT</dt><dd id="iLayout">—</dd></div>
       <div><dt>ROUTING</dt><dd id="iRoute">—</dd></div>
       <div><dt>OUTPUT</dt><dd id="iOut">—</dd></div>
-      <div><dt>INSTALL</dt><dd><button class="tbtn" id="pwaBtn" disabled>INSTALL APP</button></dd></div>
+      <div><dt>INSTALL</dt><dd><button class="tbtn" id="pwaBtn" disabled>OFFLINE READY</button></dd></div>
     </dl>
   </div>
 </aside>
@@ -464,18 +466,16 @@ const clamp=(v,a,b)=>v<a?a:v>b?b:v, lerp=(a,b,t)=>a+(b-a)*t, TAU=Math.PI*2, D2R=
 const uid=()=>Math.random().toString(36).slice(2,9);
 const fmtTime=s=>{s=Math.max(0,s||0);const m=Math.floor(s/60);return m+':'+(s-m*60).toFixed(1).padStart(4,'0');};
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-const EL={};['topbar','stage','stageWrap','radar','radarSect','heat','heatSect','heatRead','rack','seek','vid','videoBox','vbHide','videoBtn','drop','dropLoad','dropDemo','legend','glyph','srcFmt','led','statusTxt','camRead','yawRead','playBtn','playIcon','tCur','tDur','loopBtn','monBtn','renderBtn','pngBtn','csvBtn','shareBtn','ejectBtn','vol','fileIn','loadBtn','demoBtn','helpBtn','railToggle','railClose','scrim','rail','rackMode','mxState','focusRead','stFront','stSurr','stLfe','corrVal','corrFill','lufsRead','gonio','spec','specCh','sCenter','oCenter','sSpread','oSpread','sLfe','oLfe','toneState','sigType','toneCh','toneBtn','toneCyc','toneLvl','polGrid','delayGrid','iName','iCh','iLayout','iRoute','iOut','tgCabs','tgTags','tgRadar','tgAtmos','tgBin','tgRefl','tgHeat','tgObj','camPresets','year','ver','modal','modalTag','modalTitle','modalBody','modalClose','toast','genCh','genBtn','sRoomW','oRoomW','sRoomD','oRoomD','sRoomH','oRoomH','sRt60','oRt60','irBtn','irMeasBtn','reflList','reflState','measCh','measLen','measBtn','measApply','measOut','measState','measHint','eqCh','eqState','eqBypass','eqFlat','sEqLo','oEqLo','sEqMid','oEqMid','sEqHi','oEqHi','eqToIR','presetName','presetSave','presetShare','presetExport','presetList','presetCount','repBtn','repExport','repOut','repState','decState','decPill','decLoad','decRecipe','midiBtn','midiDev','midiState','midiLast','admSect','admCount','admList','objAudio','langSel','pwaBtn'].forEach(id=>EL[id]=document.getElementById(id));
+const EL={};['topbar','stage','stageWrap','radar','radarSect','heat','heatSect','heatRead','rack','seek','vid','videoBox','vbHide','videoBtn','drop','dropLoad','dropDemo','legend','glyph','srcFmt','led','statusTxt','camRead','yawRead','playBtn','playIcon','tCur','tDur','loopBtn','monBtn','renderBtn','pngBtn','csvBtn','shareBtn','ejectBtn','vol','fileIn','loadBtn','demoBtn','helpBtn','railToggle','railClose','scrim','rail','rackMode','mxState','focusRead','stFront','stSurr','stLfe','corrVal','corrFill','lufsRead','gonio','spec','specCh','sCenter','oCenter','sSpread','oSpread','sLfe','oLfe','toneState','sigType','toneCh','toneBtn','toneCyc','toneLvl','polGrid','delayGrid','iName','iCh','iLayout','iRoute','iOut','tgCabs','tgTags','tgRadar','tgAtmos','tgBin','tgRefl','tgHeat','tgObj','camPresets','year','ver','modal','modalTag','modalTitle','modalBody','modalClose','toast','genCh','genBtn','sRoomW','oRoomW','sRoomD','oRoomD','sRoomH','oRoomH','sRt60','oRt60','irBtn','irMeasBtn','reflList','reflState','measCh','measLen','measBtn','measApply','measOut','measState','eqCh','eqState','eqBypass','eqFlat','sEqLo','oEqLo','sEqMid','oEqMid','sEqHi','oEqHi','eqToIR','presetName','presetSave','presetShare','presetExport','presetList','presetCount','repBtn','repExport','repOut','repState','decState','decPill','decLoad','decRecipe','midiBtn','midiDev','midiState','midiLast','admSect','admCount','admList','objAudio','langSel','pwaBtn'].forEach(id=>EL[id]=document.getElementById(id));
 function toast(m,err){EL.toast.textContent=m;EL.toast.className='toast on'+(err?' err':'');clearTimeout(toast._t);toast._t=setTimeout(()=>EL.toast.classList.remove('on'),4200);}
-window.addEventListener('error',e=>{if(!window.__e){window.__e=1;toast('RUNTIME ERROR — see console',1);}console.error(e.error||e.message);});
+window.addEventListener('error',e=>{console.error(e.error||e.message);if(!window.__e){window.__e=1;toast('RUNTIME ERROR — see console',1);}});
 const REDUCED=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-/* ══ i18n ══ */
 const I18N={en:{tagline:'AUDIO LAB · MEASURE · ROUTE · RENDER',rack:'RACK',demo:'DEMO',load:'LOAD',view:'VIEW',speakers:'SPEAKERS',labels:'LABELS',radar:'RADAR',reflect:'REFLECT',heatmap:'HEATMAP',objects:'OBJECTS',channelRack:'CHANNEL RACK',fieldMap:'FIELD MAP',splMap:'SPL HEAT-MAP',upmix:'UP-MIX MATRIX',roomRefl:'ROOM & REFLECTIONS',measure:'ROOM MEASUREMENT',eq:'PER-BUS EQ',signals:'TEST SIGNALS',presets:'PRESETS',report:'LOUDNESS REPORT',decoder:'WASM DECODER',midi:'MIDI CONTROL',source:'SOURCE',local:'Local & Serverless. No file leaves your device.'},
 id:{tagline:'LAB AUDIO · UKUR · ROUTING · RENDER',rack:'RAK',demo:'DEMO',load:'MUAT',view:'TAMPILAN',speakers:'SPEAKER',labels:'LABEL',radar:'RADAR',reflect:'PANTULAN',heatmap:'PETA SPL',objects:'OBJEK',channelRack:'RAK KANAL',fieldMap:'PETA MEDAN',splMap:'PETA SPL',upmix:'MATRIKS UP-MIX',roomRefl:'RUANG & PANTULAN',measure:'PENGUKURAN RUANG',eq:'EQ PER KANAL',signals:'SINYAL UJI',presets:'PRESET',report:'LAPORAN LOUDNESS',decoder:'DEKODER WASM',midi:'KONTROL MIDI',source:'SUMBER',local:'Lokal & tanpa server. Berkas tidak meninggalkan perangkat.'}};
 let LANG='en';
 function applyLang(l){LANG=I18N[l]?l:'en';const d=I18N[LANG];$$('[data-i18n]').forEach(e=>{const k=e.dataset.i18n;if(d[k])e.textContent=d[k];});document.documentElement.lang=LANG;try{localStorage.setItem('sf_lang',LANG)}catch(e){}}
 
-/* ══ channels ══ */
 const CH=[
 {id:'FL',name:'Front Left',az:-30,r:2.55,h:1.12,col:'#3fe0ff'},{id:'FR',name:'Front Right',az:30,r:2.55,h:1.12,col:'#ff7a5c'},
 {id:'C',name:'Center',az:0,r:2.68,h:1.34,col:'#ffc861'},{id:'LFE',name:'Low Frequency',az:-52,r:2.2,h:.26,col:'#ff3f8e',sub:true},
@@ -500,7 +500,6 @@ function autoLayout(n){const base=ROOM_SET[n]||['FL','FR','C','LFE','SL','SR'];c
 EN.length=0;for(let i=0;i<NCH;i++){CH[i].enabled=set.includes(CH[i].id);if(CH[i].enabled)EN.push(i);}
 const gp=(GLYPH[n]||'5.1').split('.');EL.glyph.innerHTML=gp[0]+'<small>.'+gp.slice(1).join('.')+'</small>';buildLegend();refreshRack();}
 
-/* ══ audio engine ══ */
 let actx=null,buffer=null,src=null,master=null,limiter=null,merger=null,live=[],busIn=[],eqN=[],phaseN=[],userG=[],panners=[],objNodes=[];
 let ana=[],td=[],fd=[],bandMap=null,lufeAna=[],ltd=[],lufeRms=new Float32Array(6),lufsV=-99;
 let peaks=null,seekCache=null,mediaSrc=null,objectUrl=null,measuredIR=null,measInfo=null;
@@ -516,11 +515,12 @@ const F=(c,t,f,q)=>{const n=c.createBiquadFilter();n.type=t;n.frequency.value=f;
 const DL=(c,t)=>{const n=c.createDelay(.25);n.delayTime.value=t;return n;};
 function track(n){live.push(n);return n;}
 function killGraph(){stopToneSrc();if(tone.out){try{tone.out.disconnect()}catch(e){}tone.out=null;}
-if(src){try{src.stop()}catch(e){}}live.forEach(n=>{try{n.disconnect()}catch(e){}});live=[];
+if(src){try{src.stop()}catch(e){}}
+live.forEach(n=>{try{n.disconnect()}catch(e){}});live=[];
 ana.forEach(a=>{try{a.disconnect()}catch(e){}});lufeAna.forEach(a=>{try{a.disconnect()}catch(e){}});
 objNodes.forEach(o=>{try{o.pan.disconnect()}catch(e){}});objNodes=[];panners=[];
-[merger,master,limiter].forEach(n=>{if(n){try{n.disconnect()}catch(e){}}});busIn=[];eqN=[];phaseN=[];userG=[];src=null;}
-/* reusable routing: works for live + offline contexts */
+[merger,master,limiter].forEach(n=>{if(n){try{n.disconnect()}catch(e){}}});
+busIn=[];eqN=[];phaseN=[];userG=[];src=null;merger=null;master=null;limiter=null;}
 function routeBuses(c,source,n,o){
 const split=c.createChannelSplitter(Math.max(2,n));source.connect(split);
 const bus=CH.map(()=>G(c,1)),nodes=[split,...bus];
@@ -556,14 +556,17 @@ function outputStage(c,tails,o){
 const m=G(c,o.monitor?o.vol:0),lim=c.createDynamicsCompressor();
 lim.threshold.value=-2.5;lim.knee.value=0;lim.ratio.value=20;lim.attack.value=.003;lim.release.value=.15;
 const nodes=[m,lim];
-if(o.hrtf){const L=c.listener;if(L.positionX){L.positionX.value=0;L.positionY.value=0;L.positionZ.value=0;
+if(o.hrtf){const L=c.listener;
+if(L.positionX){L.positionX.value=0;L.positionY.value=0;L.positionZ.value=0;
 if(L.forwardX){L.forwardX.value=0;L.forwardY.value=0;L.forwardZ.value=1;L.upX.value=0;L.upY.value=1;L.upZ.value=0;}}
 else if(L.setPosition){L.setPosition(0,0,0);L.setOrientation(0,0,1,0,1,0);}
 const ps=[];tails.forEach((t,i)=>{const p=c.createPanner();p.panningModel='HRTF';p.distanceModel='inverse';p.refDistance=1;p.maxDistance=20;p.rolloffFactor=.6;
 const pos=CH[i].pos;if(p.positionX){p.positionX.value=pos[0];p.positionY.value=pos[1]-1.1;p.positionZ.value=pos[2];}else p.setPosition(pos[0],pos[1]-1.1,pos[2]);
 t.connect(p);p.connect(m);nodes.push(p);ps.push(p);});o.outLabel='HRTF BINAURAL · '+tails.length+' SOURCES';return {master:m,lim,nodes,panners:ps};}
 const maxOut=o.forceChannels||(c.destination.maxChannelCount||2);
-if(maxOut>=6&&!o.offline||o.offline&&o.forceChannels>=6){const mg=c.createChannelMerger(6);tails.forEach((t,i)=>{if(i<6)t.connect(mg,0,i);});mg.connect(m);nodes.push(mg);o.outLabel='DISCRETE 6CH OUT';return {master:m,lim,nodes,merger:mg};}
+if(maxOut>=6){const mg=c.createChannelMerger(6);tails.forEach((t,i)=>{if(i<6)t.connect(mg,0,i);});mg.connect(m);nodes.push(mg);
+if(!o.offline){try{c.destination.channelCount=Math.min(6,c.destination.maxChannelCount||2);}catch(e){}}
+o.outLabel='DISCRETE 6CH OUT';return {master:m,lim,nodes,merger:mg};}
 const mL=G(c,1),mR=G(c,1);const f=(i,d,g)=>{if(g<=0||!tails[i])return;const t=G(c,g);tails[i].connect(t);t.connect(d);nodes.push(t);};
 f(0,mL,.75);f(1,mR,.75);f(2,mL,.53);f(2,mR,.53);f(4,mL,.55);f(5,mR,.55);const lg=.55*o.lfe;f(3,mL,lg);f(3,mR,lg);
 for(let i=6;i<NCH;i++){f(i,mL,HFOLD[i-6][0]);f(i,mR,HFOLD[i-6][1]);}
@@ -574,11 +577,10 @@ const o={center:state.center,spread:state.spread,lfe:state.lfe,atmos:state.atmos
 const n=Math.min(buffer.numberOfChannels,12);
 src=track(actx.createBufferSource());src.buffer=buffer;src.loop=state.loop;
 const r=routeBuses(actx,src,n,o);busIn=r.bus;live.push(...r.nodes);
-const tails=[];
-const anySolo=CH.some(c=>c.solo);
+const tails=[],anySolo=CH.some(c=>c.solo);
 for(let i=0;i<NCH;i++){const e=eqChain(actx,busIn[i],i,o);eqN.push(e);live.push(...e.nodes);
 const ph=track(G(actx,state.pol[i]));phaseN.push(ph);e.out.connect(ph);
-const ug=track(G(act,0));userG.push(ug);ug.gain.value=(!CH[i].mute&&(anySolo?CH[i].solo:true))?1:0;ph.connect(ug);
+const ug=track(G(actx,0));userG.push(ug);ug.gain.value=(!CH[i].mute&&(anySolo?CH[i].solo:true))?1:0;ph.connect(ug);
 ug.connect(ana[i]);tails.push(ug);
 if(i<6){const hs=track(F(actx,'highshelf',1681,.707));hs.gain.value=4;const hp=track(F(actx,'highpass',38.13,.5));ug.connect(hs);hs.connect(hp);hp.connect(lufeAna[i]);}}
 const out=outputStage(actx,tails,o);master=out.master;limiter=out.lim;merger=out.merger||null;panners=out.panners||[];live.push(...out.nodes);
@@ -586,14 +588,13 @@ master.connect(limiter);limiter.connect(actx.destination);
 state.resolved=o.resolved;state.outLabel=o.outLabel;
 if(adm&&state.objAudio)buildObjectAudio(actx,src,n);
 const self=src;src.onended=()=>{if(src!==self||!state.playing)return;if(!state.loop&&position()>=buffer.duration-.08){pause();state.offset=0;syncPlayIcon();}};
-state.offset=clamp(resumeAt||0,0,buffer.duration-.01);
+state.offset=clamp(resumeAt||0,0,Math.max(0,buffer.duration-.01));
 if(wasPlaying){src.start(0,state.offset);state.startAt=actx.currentTime;state.playing=true;}
 if(tone.on)toneResume();updateRoutingUI();}
-function act(){return actx;}
 function buildMediaGraph(){ensureCtx();killGraph();
 const o={center:state.center,spread:state.spread,lfe:state.lfe,atmos:state.atmos,hrtf:state.hrtf,monitor:state.monitor,vol:state.vol,eq:CH.map(c=>c.eq)};
 if(!mediaSrc)mediaSrc=actx.createMediaElementSource(vid);
-const r=routeBuses(actx,mediaSrc,2,o);busIn=r.bus;live.push(...r.nodes);const tails=[];const anySolo=CH.some(c=>c.solo);
+const r=routeBuses(actx,mediaSrc,2,o);busIn=r.bus;live.push(...r.nodes);const tails=[],anySolo=CH.some(c=>c.solo);
 for(let i=0;i<NCH;i++){const e=eqChain(actx,busIn[i],i,o);eqN.push(e);live.push(...e.nodes);
 const ph=track(G(actx,state.pol[i]));phaseN.push(ph);e.out.connect(ph);const ug=track(G(actx,1));userG.push(ug);
 ug.gain.value=(!CH[i].mute&&(anySolo?CH[i].solo:true))?1:0;ph.connect(ug);ug.connect(ana[i]);tails.push(ug);
@@ -618,7 +619,7 @@ syncPlayIcon();setStatus('PLAYING','live');}
 function pause(){if(kind==='media'){state.playing=false;vid.pause();syncPlayIcon();setStatus('PAUSED','');return;}
 if(!buffer)return;state.offset=position();state.playing=false;killGraph();syncPlayIcon();setStatus('PAUSED','');}
 function seek(t){if(kind==='media'){if(isFinite(vid.duration))vid.currentTime=clamp(t,0,Math.max(0,vid.duration-.05));if(!state.playing)drawSeek();return;}
-if(!buffer)return;const was=state.playing;state.playing=false;if(was)killGraph();state.offset=clamp(t,0,buffer.duration-.02);if(was)play();else drawSeek();}
+if(!buffer)return;const was=state.playing;state.playing=false;if(was)killGraph();state.offset=clamp(t,0,Math.max(0,buffer.duration-.02));if(was)play();else drawSeek();}
 function rebuildKeepTime(){if(kind==='media'){if(master)buildMediaGraph();return;}if(!buffer)return;
 const t=position(),was=state.playing;state.playing=false;buildGraph(t,was);if(was)setStatus('PLAYING','live');}
 function applyGains(){const anySolo=CH.some(c=>c.solo);for(let i=0;i<NCH;i++){const on=!CH[i].mute&&(anySolo?CH[i].solo:true);
@@ -628,7 +629,6 @@ e.nodes[0].gain.setTargetAtTime(c.bypass?0:c.lo,actx.currentTime,.02);
 e.nodes[1].gain.setTargetAtTime(c.bypass?0:c.mid,actx.currentTime,.02);
 e.nodes[2].gain.setTargetAtTime(c.bypass?0:c.hi,actx.currentTime,.02);}}
 
-/* ══ tone / signals ══ */
 const tone={on:false,type:'pink',ch:0,level:.35,cycle:false,cycT:0,src:null,out:null};
 let pinkBuf=null,sweepBuf=null;
 function noiseBuf(c,secs,pink){const n=Math.floor(c.sampleRate*secs),b=c.createBuffer(1,n,c.sampleRate),d=b.getChannelData(0);
@@ -651,7 +651,6 @@ function toneStop(){stopToneSrc();if(tone.out){try{tone.out.disconnect()}catch(e
 function syncToneUI(){EL.toneBtn.textContent=tone.on?'TONE OFF':'TONE ON';EL.toneBtn.classList.toggle('on',tone.on);
 EL.toneState.textContent=(tone.on?'ON · ':'OFF · ')+CH[tone.ch].id;}
 
-/* ══ WAV encode ══ */
 function encodeWav(chs,sr,float32){const nch=chs.length,N=chs[0].length,bps=float32?4:2,blockAlign=nch*bps,dataLen=N*blockAlign,total=68+dataLen;
 const ab=new ArrayBuffer(total),dv=new DataView(ab),u8=new Uint8Array(ab);
 const ws=(o,s)=>{for(let i=0;i<s.length;i++)u8[o+i]=s.charCodeAt(i);};
@@ -668,7 +667,6 @@ else{const q=new Int16Array(ab,68,N*nch);for(let n=0;n<N;n++)for(let c=0;c<nch;c
 return new Blob([ab],{type:'audio/wav'});}
 function download(blob,name){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),5000);}
 
-/* ══ test-signal library ══ */
 function makeTestWav(nch,type){const sr=48000,secs=type==='id'?nch*1.1:6,N=Math.floor(sr*secs);
 const chs=[];for(let c=0;c<nch;c++)chs.push(new Float32Array(N));
 const freqs=[220,277,330,40,440,554,660,880,1000,1200,1400,1600];
@@ -677,7 +675,7 @@ let b0=0,b1=0,b2=0;
 for(let i=0;i<N;i++){const t=i/sr;
 for(let c=0;c<nch;c++){let v=0;
 if(type==='id'){const slot=Math.floor(t/1.1);if(slot===c){const u=(t-slot*1.1)/1.1;v=Math.sin(TAU*freqs[c]*t)*Math.pow(Math.sin(Math.PI*u),.6)*.6;}}
-else if(type==='polarity'){const per=.5,u=t%per;if(u<.02)v=(c%2?-1:1)*Math.sin(TAU*u/.02)*.8;}
+else if(type==='polarity'){const u=t%.5;if(u<.02)v=(c%2?-1:1)*Math.sin(TAU*u/.02)*.8;}
 else if(type==='lfe'){if(c===3){const w=rnd();b0=.997*b0+.029591*w;b1=.985*b1+.032534*w;b2=.95*b2+.048056*w;v=(b0+b1+b2)*.5;}}
 else if(type==='phase'){if(c===0)v=Math.sin(TAU*300*t)*.5;if(c===1)v=Math.sin(TAU*300*t+(t%2<1?0:Math.PI))*.5;}
 else if(type==='pink'){const w=rnd();b0=.997*b0+.029591*w;b1=.985*b1+.032534*w;b2=.95*b2+.048056*w;v=(b0+b1+b2)*.25*(c===3?.3:1);}
@@ -698,26 +696,23 @@ let a1=0,a2=0;for(let i=0;i<N;i++){a1+=(rnd()-a1)*.02;a2+=(rnd()-a2)*.02;const s
 let mx=0;for(let c=0;c<6;c++)for(let i=0;i<N;i++)mx=Math.max(mx,Math.abs(d[c][i]));
 const g=mx>0?.82/mx:1;for(let c=0;c<6;c++)for(let i=0;i<N;i++)d[c][i]*=g;return buf;}
 
-/* ══ loading + WASM decoder ══ */
-const DEC={status:'idle',core:null,err:null};
+const DEC={core:null};
 function decPill(txt,cls){EL.decPill.textContent=txt;EL.decPill.className='pill'+(cls?' '+cls:'');EL.decState.textContent=txt;}
 async function loadDietCore(){
 if(DEC.core)return DEC.core;
 decPill('LOADING','warn');
 try{
 const base='ffmpeg/';
-const probe=await fetch(base+'ffmpeg-core.js',{method:'GET'});
+const probe=await fetch(base+'ffmpeg-core.js');
 if(!probe.ok)throw new Error('core js '+probe.status);
 const code=await probe.text();
-const blob=new Blob([code],{type:'text/javascript'});
-const url=URL.createObjectURL(blob);
+const url=URL.createObjectURL(new Blob([code],{type:'text/javascript'}));
 await new Promise((res,rej)=>{const s=document.createElement('script');s.src=url;s.onload=res;s.onerror=()=>rej(new Error('core exec failed'));document.head.appendChild(s);});
 URL.revokeObjectURL(url);
-const factory=window.createFFmpegCore;
-if(typeof factory!=='function')throw new Error('createFFmpegCore missing');
-DEC.core=await factory({locateFile:(p)=>base+p});
+if(typeof window.createFFmpegCore!=='function')throw new Error('createFFmpegCore missing');
+DEC.core=await window.createFFmpegCore({locateFile:p=>base+p});
 decPill('READY','ok');toast('WASM DECODER READY');return DEC.core;
-}catch(e){DEC.err=e.message;decPill('CORE MISSING','err');return null;}}
+}catch(e){decPill('CORE MISSING','err');return null;}}
 async function decodeWithWasm(ab,name){
 const core=await loadDietCore();if(!core)return null;
 try{decPill('DECODING','warn');
@@ -728,7 +723,7 @@ const data=core.FS.readFile('out.wav');
 try{core.FS.unlink(inName);core.FS.unlink('out.wav');}catch(e){}
 const buf=await actx.decodeAudioData(data.buffer.slice(0));
 decPill('READY','ok');return buf;
-}catch(e){DEC.err=e.message;decPill('DECODE FAILED','err');return null;}}
+}catch(e){decPill('DECODE FAILED','err');return null;}}
 let decodeTimes=[];
 function rateOK(){const n=Date.now();decodeTimes=decodeTimes.filter(t=>n-t<6000);if(decodeTimes.length>=3)return false;decodeTimes.push(n);return true;}
 async function loadFile(file){
@@ -744,7 +739,7 @@ adm=parseADM(ab);admTrails.length=0;EL.admSect.hidden=!adm;if(adm)EL.admCount.te
 try{const buf=await actx.decodeAudioData(ab.slice(0));adopt(buf,file.name);return;}catch(e){}
 const w=await decodeWithWasm(ab,file.name);
 if(w){adopt(w,file.name);toast('DECODED VIA WASM CORE');return;}
-pendingMedia=file;openModal('decoder');}
+pendingMedia=file;openModal('decoder');setStatus('IDLE','');}
 function resetChannels(){CH.forEach(c=>{c.mute=false;c.solo=false;c.lvl=0;c.vis=0;c.hold=0;c.rings.length=0;});}
 function adopt(buf,name){const was=state.playing;if(was)pause();
 buffer=buf;kind='buffer';state.offset=0;state.hasAudio=true;resetChannels();
@@ -783,7 +778,6 @@ const step=Math.max(1,Math.floor(N/B)),d=[];for(let c=0;c<Math.min(nch,6);c++)d.
 for(let b=0;b<B;b++){let mx=0;const s=b*step,e=Math.min(N,s+step);
 for(let i=s;i<e;i+=2){let v=0;for(let c=0;c<d.length;c++)v+=d[c][i];v=Math.abs(v/d.length);if(v>mx)mx=v;}peaks[b]=mx;}seekCache=null;}
 
-/* ══ ADM ══ */
 let adm=null;const admTrails=[];
 function parseTs(s){const m=String(s).match(/(\d+):(\d+):(\d+(?:\.\d+)?)/);return m?+m[1]*3600+ +m[2]*60+ +m[3]:0;}
 function parseADM(raw){try{const dv=new DataView(raw);let off=12,xml=null;
@@ -805,8 +799,8 @@ if(!nxt||cur.dur<=0)return cur;const u=clamp((t-cur.t)/Math.max(cur.dur,1e-6),0,
 return {az:lerp(cur.az,nxt.az,u),el:lerp(cur.el,nxt.el,u),dist:lerp(cur.dist,nxt.dist,u)};}
 function admWorld(p){const el=p.el*D2R,az=p.az*D2R,r=1.1+(p.dist||1)*1.4;
 return [Math.sin(az)*Math.cos(el)*r,1.15+Math.sin(el)*r*.9,Math.cos(az)*Math.cos(el)*r];}
-function buildObjectAudio(c,source,n){if(!adm)return;
-adm.objects.forEach((o,i)=>{if(o.ch>=n)return;
+function buildObjectAudio(c,source,n){if(!adm||!master)return;
+adm.objects.forEach(o=>{if(o.ch>=n)return;
 try{const split=c.createChannelSplitter(n);source.connect(split);
 const g=G(c,.8);split.connect(g,o.ch);
 const p=c.createPanner();p.panningModel='HRTF';p.distanceModel='inverse';p.refDistance=1;p.rolloffFactor=.5;
@@ -816,7 +810,6 @@ objNodes.forEach(o=>{const p=admPos(o.obj,t);if(!p)return;const w=admWorld(p);
 if(o.pan.positionX){o.pan.positionX.setTargetAtTime(w[0],actx.currentTime,.03);o.pan.positionY.setTargetAtTime(w[1]-1.1,actx.currentTime,.03);o.pan.positionZ.setTargetAtTime(w[2],actx.currentTime,.03);}
 else o.pan.setPosition(w[0],w[1]-1.1,w[2]);});}
 
-/* ══ analysis ══ */
 let totalE=0,frontE=0,surrE=0,lfeE=0,domAng=0,focus=0,corr=0;
 function analyse(dt){totalE=frontE=surrE=lfeE=0;let vx=0,vz=0;const anySolo=CH.some(c=>c.solo);
 for(let i=0;i<NCH;i++){const c=CH[i];let rms=0,pk=0;const audible=!c.mute&&(anySolo?c.solo:true);
@@ -849,7 +842,6 @@ if(state.playing&&actx&&td.length){let sl=0,sr2=0,slr=0;const a=td[0],b=td[1];
 for(let k=0;k<a.length;k+=2){sl+=a[k]*a[k];sr2+=b[k]*b[k];slr+=a[k]*b[k];}
 const d=Math.sqrt(sl*sr2);corr=lerp(corr,d>1e-9?clamp(slr/d,-1,1):0,.2);}else corr=lerp(corr,0,.05);}
 
-/* ══ 3D renderer ══ */
 const cv=EL.stage,g2=cv.getContext('2d',{alpha:false});
 let W=0,H=0,DPR=1,focal=800;
 const cam={yaw:0,tYaw:0,dist:6.1,tDist:6.1,h:.35,tH:.35,ty:.92,tTy:.92,pos:[0,0,0],r:[1,0,0],u:[0,1,0],f:[0,0,1]};
@@ -1016,7 +1008,7 @@ function roundRect(x,y,w,h,r){g2.beginPath();g2.moveTo(x+r,y);g2.arcTo(x+w,y,x+w
 function labels(){if(!state.showTags)return;const items=[];
 for(const e of EN){const c=CH[e],vv=view([c.pos[0],c.pos[1]+(c.sub?.32:(c.height?.22:.3)),c.pos[2]]);if(vv[2]<NEAR)continue;items.push([c,e,proj(vv)]);}
 items.sort((a,b)=>b[2][2]-a[2][2]);
-for(const [c,idx,q] of items){const hot=state.hover===idx||c.solo,fade=clamp(1.5-q[2]/11,.25,1);
+for(const it of items){const c=it[0],idx=it[1],q=it[2],hot=state.hover===idx||c.solo,fade=clamp(1.5-q[2]/11,.25,1);
 const w=hot?116:74,h=hot?38:26,x=q[0]-w/2,y=q[1]-h-6;
 g2.globalAlpha=fade;g2.fillStyle='rgba(8,11,17,.78)';g2.strokeStyle='rgba('+c.rgbStr+','+(hot?.85:.35)+')';g2.lineWidth=1;
 roundRect(x,y,w,h,4);g2.fill();g2.stroke();
@@ -1042,7 +1034,6 @@ if(anchor[2]>NEAR){const q=proj(anchor);const gr=g2.createRadialGradient(q[0],q[
 gr.addColorStop(0,'rgba(255,178,90,'+(.035+fw*.1)+')');gr.addColorStop(1,'rgba(0,0,0,0)');g2.fillStyle=gr;g2.fillRect(0,0,W,H);}
 floorAndRoom();renderRefl();if(state.hrtf)head(t);else chair(t);speakers();admOrbs();drawDust(t,dt);labels();}
 
-/* ══ radar / heat / rack / seek / meters ══ */
 function renderRadar(t){if(!state.showRadar)return;const S=EL.radar.width/DPR;if(!S||S<10)return;
 rg.setTransform(DPR,0,0,DPR,0,0);rg.clearRect(0,0,S,S);const cx=S/2,cy=S/2,R=S*.4;
 rg.strokeStyle='rgba(146,178,214,.13)';rg.lineWidth=1;for(let k=1;k<=3;k++){rg.beginPath();rg.arc(cx,cy,R*k/3,0,TAU);rg.stroke();}
@@ -1063,7 +1054,6 @@ if(focus>.02&&totalE>1e-6){const L=R*focus*.95,ex=cx+Math.sin(domAng*D2R)*L,ey=c
 rg.strokeStyle='rgba(255,255,255,.75)';rg.lineWidth=1.6;rg.beginPath();rg.moveTo(cx,cy);rg.lineTo(ex,ey);rg.stroke();
 rg.beginPath();rg.arc(ex,ey,3,0,TAU);rg.fillStyle='#fff';rg.fill();}
 rg.fillStyle='rgba(230,238,248,.85)';rg.fillRect(cx-4,cy-3,8,7);rg.fillRect(cx-5,cy-7,10,3);}
-let heatT=0;
 function renderHeat(){const S=EL.heat.width/DPR;if(!S||S<10)return;hc.setTransform(DPR,0,0,DPR,0,0);
 const N=40,cell=S/N;let mn=99,mx=-99;const vals=new Float32Array(N*N);
 for(let j=0;j<N;j++)for(let i=0;i<N;i++){const x=(i/(N-1)-.5)*room.w,z=(j/(N-1)-.5)*room.d;let e=0;
@@ -1128,7 +1118,6 @@ const f=fd[clamp(specSel,0,fd.length-1)];
 for(let y=0;y<h;y++){const bin=Math.min(f.length-1,Math.floor(Math.pow(1-y/h,2)*300)),v=(f[bin]||0)/255;if(v<.04)continue;
 sc.fillStyle='rgba(255,'+((120+135*v)|0)+','+((60+140*(1-v))|0)+','+clamp(v*1.2,0,1)+')';sc.fillRect(w-1,y,1,1);}}
 
-/* ══ measurement ══ */
 const MEAS={busy:false};
 async function measureRoom(){
 if(MEAS.busy)return;
@@ -1138,7 +1127,8 @@ let stream;try{stream=await navigator.mediaDevices.getUserMedia({audio:{echoCanc
 catch(e){MEAS.busy=false;EL.measBtn.disabled=false;EL.measState.textContent='MIC DENIED';toast('MICROPHONE PERMISSION DENIED',1);return;}
 try{
 ensureCtx();if(actx.state==='suspended')await actx.resume();
-const sr=actx.sampleRate,secs=+EL.measLen.value,tail=1.5,N=Math.floor(sr*(secs+tail));
+ensureTestGraph();
+const sr=actx.sampleRate,secs=+EL.measLen.value,tail=1.5;
 const workletCode='class R extends AudioWorkletProcessor{constructor(){super();this.on=true;this.port.onmessage=e=>{if(e.data==="stop")this.on=false;};}process(i){if(this.on&&i[0]&&i[0][0])this.port.postMessage(i[0][0].slice(0));return true;}}registerProcessor("rec",R);';
 const wurl=URL.createObjectURL(new Blob([workletCode],{type:'text/javascript'}));
 await actx.audioWorklet.addModule(wurl);URL.revokeObjectURL(wurl);
@@ -1149,7 +1139,7 @@ const sw=sweepBufMake(actx,secs);
 const sweepSrc=actx.createBufferSource();sweepSrc.buffer=sw;
 const sg=G(actx,.5);sweepSrc.connect(sg);
 const chIdx=+EL.measCh.value;
-if(busIn[chIdx]){ensureTestGraph();sg.connect(busIn[chIdx]);}else sg.connect(actx.destination);
+if(busIn[chIdx])sg.connect(busIn[chIdx]);else sg.connect(actx.destination);
 EL.measState.textContent='SWEEPING';setStatus('MEASURING','decode');
 sweepSrc.start();
 await new Promise(r=>setTimeout(r,(secs+tail)*1000));
@@ -1181,7 +1171,7 @@ const e0=energy[0]||1e-12;const dbAt=i=>10*Math.log10(Math.max(energy[i],1e-14)/
 let i5=-1,i35=-1;for(let i=0;i<len;i++){const d=dbAt(i);if(i5<0&&d<=-5)i5=i;if(i35<0&&d<=-35){i35=i;break;}}
 let measuredRt=rt60;
 if(i5>=0&&i35>i5)measuredRt=clamp(2*(i35-i5)/sr,.08,3);
-const refs=[];const win=Math.floor(sr*.0008);
+const refs=[],win=Math.floor(sr*.0008);
 for(let i=Math.floor(sr*.001);i<Math.min(len,Math.floor(sr*.06));i++){
 let local=true;const a=Math.abs(trimmed[i]);if(a<.06)continue;
 for(let k=Math.max(0,i-win);k<Math.min(len,i+win);k++)if(Math.abs(trimmed[k])>a){local=false;break;}
@@ -1198,7 +1188,6 @@ toast('ROOM MEASURED · RT60 '+measuredRt.toFixed(2)+'s');
 }catch(e){console.error(e);EL.measState.textContent='FAILED';toast('MEASUREMENT FAILED: '+e.message,1);setStatus('IDLE','');}
 finally{MEAS.busy=false;EL.measBtn.disabled=false;}}
 
-/* ══ IR export ══ */
 function addSpike(a,tSec,amp,sr){const x=tSec*sr,i=Math.floor(x),f=x-i;if(i>=0&&i<a.length)a[i]+=amp*(1-f);if(i+1>=0&&i+1<a.length)a[i+1]+=amp*f;}
 function eqImpulse(c,sr){const n=Math.floor(sr*.05),b=new Float32Array(n);b[0]=1;
 const oc=new OfflineAudioContext(1,n,sr);const s=oc.createBufferSource();const bb=oc.createBuffer(1,n,sr);bb.getChannelData(0).set(b);s.buffer=bb;
@@ -1208,7 +1197,7 @@ const hi=oc.createBiquadFilter();hi.type='highshelf';hi.frequency.value=6000;hi.
 s.connect(lo);lo.connect(mid);mid.connect(hi);hi.connect(oc.destination);s.start();
 return oc.startRendering().then(r=>r.getChannelData(0));}
 async function exportIR(withEQ){ensureCtx();const sr=actx.sampleRate;
-const dM=delayInputs.map(x=>clamp(+x.inp.value||1,.5,12)),maxD=Math.max(...dM)/343;
+const dM=delayInputs.map(x=>clamp(+x.inp.value||1,.5,12)),maxD=Math.max.apply(null,dM)/343;
 const T=Math.min(4,rt60+maxD+.2),N=Math.ceil(sr*T),chs=[];
 for(let c=0;c<6;c++)chs.push(new Float32Array(N));
 const eqIRs=[];for(let i=0;i<6;i++)eqIRs.push(withEQ?await eqImpulse(CH[i].eq,sr):null);
@@ -1224,20 +1213,20 @@ let pk=0;for(let c=0;c<6;c++)for(let n=0;n<N;n+=7)pk=Math.max(pk,Math.abs(chs[c]
 if(pk>0){const g=.9/pk;for(let c=0;c<6;c++)for(let n=0;n<N;n++)chs[c][n]*=g;}
 download(encodeWav(chs,sr,true),'surround-field_IR'+(withEQ?'_EQ':'')+'_rt'+rt60.toFixed(2)+'.wav');
 toast('IR EXPORTED · 6CH FLOAT32'+(withEQ?' + EQ':''));}
-function exportMeasured(){if(!measuredIR)return;const chs=[];for(let c=0;c<6;c++){const a=new Float32Array(measuredIR.length);
+function exportMeasured(){if(!measuredIR||!measInfo)return;const chs=[];for(let c=0;c<6;c++){const a=new Float32Array(measuredIR.length);
 if(c===+EL.measCh.value)a.set(measuredIR);chs.push(a);}
 download(encodeWav(chs,measInfo.sr,true),'surround-field_measured_IR.wav');toast('MEASURED IR EXPORTED');}
 
-/* ══ offline render ══ */
 async function renderUpmix(){if(!buffer){toast('LOAD A FILE FIRST',1);return;}
 EL.renderBtn.disabled=true;setStatus('RENDERING','decode');
-try{const n=Math.min(buffer.numberOfChannels,12),ch=6,sr=buffer.sampleRate;
-const oc=new OfflineAudioContext(ch,Math.ceil(buffer.duration*sr),sr);
+try{const n=Math.min(buffer.numberOfChannels,12),sr=buffer.sampleRate;
+const oc=new OfflineAudioContext(6,Math.ceil(buffer.duration*sr),sr);
 const s=oc.createBufferSource();s.buffer=buffer;
 const o={center:state.center,spread:state.spread,lfe:state.lfe,atmos:state.atmos,hrtf:false,monitor:true,vol:1,offline:true,forceChannels:6,eq:CH.map(c=>c.eq)};
-const r=routeBuses(oc,s,n,o);const tails=[];
+const r=routeBuses(oc,s,n,o),tails=[];
+const anySolo=CH.some(c=>c.solo);
 for(let i=0;i<6;i++){const e=eqChain(oc,r.bus[i],i,o);const ph=G(oc,state.pol[i]);e.out.connect(ph);
-const ug=G(oc,CH[i].mute?0:1);ph.connect(ug);tails.push(ug);}
+const ug=G(oc,(!CH[i].mute&&(anySolo?CH[i].solo:true))?1:0);ph.connect(ug);tails.push(ug);}
 const mg=oc.createChannelMerger(6);tails.forEach((t,i)=>t.connect(mg,0,i));
 const lim=oc.createDynamicsCompressor();lim.threshold.value=-1;lim.knee.value=0;lim.ratio.value=20;lim.attack.value=.003;lim.release.value=.15;
 mg.connect(lim);lim.connect(oc.destination);s.start();
@@ -1248,7 +1237,6 @@ toast('UPMIX RENDERED · 5.1 FLOAT32');setStatus(state.playing?'PLAYING':'IDLE',
 }catch(e){console.error(e);toast('RENDER FAILED: '+e.message,1);setStatus('IDLE','');}
 finally{EL.renderBtn.disabled=false;}}
 
-/* ══ loudness report ══ */
 let REPORT=null;
 async function analyzeReport(){if(!buffer){toast('LOAD A FILE FIRST',1);return;}
 EL.repBtn.disabled=true;EL.repState.textContent='ANALYZING';
@@ -1269,9 +1257,8 @@ for(let c=0;c<nch;c++){const d=data[c];for(let i=0;i<N;i+=3){const a=Math.abs(d[
 for(let start=0;start+blk<=N;start+=step){let sum=0;
 for(let c=0;c<nch;c++){const d=data[c],w=W[c]||1;let s2=0;for(let i=start;i<start+blk;i++)s2+=d[i]*d[i];sum+=w*(s2/blk);}
 blocks.push(-.691+10*Math.log10(Math.max(sum,1e-12)));}
-const gated=blocks.filter(b=>b>-70);
 const mean=a=>a.reduce((x,y)=>x+y,0)/Math.max(1,a.length);
-const rel=mean(gated),abs=gated.filter(b=>b>rel-10);
+const gated=blocks.filter(b=>b>-70),rel=mean(gated),abs=gated.filter(b=>b>rel-10);
 const integrated=abs.length?mean(abs):-99;
 const sblk=Math.floor(sr*3),short=[];
 for(let start=0;start+sblk<=N;start+=Math.floor(sr)){let sum=0;
@@ -1295,7 +1282,7 @@ EL.repExport.disabled=false;toast('ANALYSIS COMPLETE');
 }catch(e){console.error(e);EL.repState.textContent='FAILED';toast('ANALYSIS FAILED: '+e.message,1);}
 finally{EL.repBtn.disabled=false;}}
 function exportReport(){if(!REPORT)return;const R=REPORT;
-const bars=R.blocks.map((b,i)=>{const h=clamp((b+50)/50,0,1)*100;return '<i style="height:'+h.toFixed(1)+'%"></i>';}).join('');
+const bars=R.blocks.map(b=>'<i style="height:'+(clamp((b+50)/50,0,1)*100).toFixed(1)+'%"></i>').join('');
 const html='<!DOCTYPE html><html><head><meta charset="utf-8"><title>Surround-field report</title><style>'+
 'body{background:#070910;color:#e7eef8;font:14px/1.6 system-ui,sans-serif;margin:0;padding:32px}'+
 'h1{font-size:26px;letter-spacing:-.03em;margin:0 0 4px}h2{font-size:11px;letter-spacing:.22em;color:#ffb545;margin:26px 0 10px;text-transform:uppercase}'+
@@ -1319,16 +1306,16 @@ R.perCh.map(p=>'<tr><td>'+p.id+'</td><td>'+p.rms.toFixed(2)+'</td><td>'+p.peak.t
 '<div class="foot">Generated by Surround-field v'+APP_VERSION+' · BS.1770 K-weighted gating · sample peak (not oversampled true-peak) · indicative, not certified metrology.</div></body></html>';
 download(new Blob([html],{type:'text/html'}),'surround-field_report.html');toast('REPORT EXPORTED');}
 
-/* ══ presets ══ */
 const PKEY='sf_presets_v3';
 function getPresets(){try{return JSON.parse(localStorage.getItem(PKEY)||'[]')}catch(e){return []}}
 function setPresets(p){try{localStorage.setItem(PKEY,JSON.stringify(p))}catch(e){}renderPresets();}
 function snapshot(name){return {id:uid(),name:name||'Preset '+(getPresets().length+1),ts:Date.now(),
-room:{...room},rt60,center:state.center,spread:state.spread,lfe:state.lfe,atmos:state.atmos,hrtf:state.hrtf,
-eq:CH.map(c=>({...c.eq})),pol:[...state.pol],cam:{yaw:cam.tYaw,dist:cam.tDist,h:cam.tH}};}
+room:{w:room.w,d:room.d,h:room.h},rt60,center:state.center,spread:state.spread,lfe:state.lfe,atmos:state.atmos,hrtf:state.hrtf,
+eq:CH.map(c=>({lo:c.eq.lo,mid:c.eq.mid,hi:c.eq.hi,bypass:c.eq.bypass})),pol:state.pol.slice(),cam:{yaw:cam.tYaw,dist:cam.tDist,h:cam.tH}};}
 function applyPreset(p){room.w=p.room.w;room.d=p.room.d;room.h=p.room.h;rt60=p.rt60;
 state.center=p.center;state.spread=p.spread;state.lfe=p.lfe;state.atmos=!!p.atmos;state.hrtf=!!p.hrtf;
-if(p.eq)p.eq.forEach((e,i)=>{if(CH[i])CH[i].eq={...e};});if(p.pol)state.pol=p.pol.slice();
+if(p.eq)p.eq.forEach((e,i)=>{if(CH[i])CH[i].eq={lo:e.lo,mid:e.mid,hi:e.hi,bypass:!!e.bypass};});
+if(p.pol)state.pol=p.pol.slice();
 if(p.cam){cam.tYaw=p.cam.yaw;cam.tDist=p.cam.dist;cam.tH=p.cam.h;}
 EL.sRoomW.value=room.w;EL.sRoomD.value=room.d;EL.sRoomH.value=room.h;EL.sRt60.value=rt60;
 EL.sCenter.value=state.center;EL.sSpread.value=state.spread;EL.sLfe.value=state.lfe;
@@ -1346,7 +1333,7 @@ p.set('c',state.center.toFixed(2));p.set('s',state.spread.toFixed(2));p.set('l',
 p.set('rw',room.w.toFixed(2));p.set('rd',room.d.toFixed(2));p.set('rh',room.h.toFixed(2));p.set('rt',rt60.toFixed(2));
 p.set('cy',Math.round(cam.tYaw/D2R));p.set('cd',cam.tDist.toFixed(1));p.set('ch',cam.tH.toFixed(2));
 if(state.atmos)p.set('at','1');if(state.hrtf)p.set('hr','1');
-const eq=CH.slice(0,6).map(c=>[c.eq.lo,c.eq.mid,c.eq.hi].join(':')).join(',');p.set('eq',eq);
+p.set('eq',CH.slice(0,6).map(c=>[c.eq.lo,c.eq.mid,c.eq.hi].join(':')).join(','));
 history.replaceState(null,'','#'+p.toString());
 const url=location.href;
 if(navigator.clipboard)navigator.clipboard.writeText(url).then(()=>toast('SHARE LINK COPIED')).catch(()=>toast(url));else toast(url);}
@@ -1368,7 +1355,6 @@ EL.sCenter.value=state.center;EL.sSpread.value=state.spread;EL.sLfe.value=state.
 EL.sRoomW.value=room.w;EL.sRoomD.value=room.d;EL.sRoomH.value=room.h;EL.sRt60.value=rt60;
 EL.tgAtmos.classList.toggle('on',state.atmos);EL.tgBin.classList.toggle('on',state.hrtf);}
 
-/* ══ MIDI ══ */
 const MIDI={access:null,input:null};
 async function enableMidi(){if(!navigator.requestMIDIAccess){toast('WEB MIDI UNSUPPORTED IN THIS BROWSER',1);return;}
 try{const a=await navigator.requestMIDIAccess({sysex:false});MIDI.access=a;
@@ -1379,7 +1365,7 @@ bindMidi(ins[0]);EL.midiState.textContent='ON · '+ins.length+' DEV';EL.midiBtn.
 fill();a.onstatechange=fill;toast('MIDI ENABLED');
 }catch(e){toast('MIDI PERMISSION DENIED',1);}}
 function bindMidi(inp){if(MIDI.input)MIDI.input.onmidimessage=null;MIDI.input=inp;
-inp.onmidimessage=e=>{const [st,d1,d2]=e.data,cmd=st&0xf0;
+inp.onmidimessage=e=>{const st=e.data[0],d1=e.data[1],d2=e.data[2],cmd=st&0xf0;
 EL.midiLast.textContent='CH'+((st&0xf)+1)+' · '+d1+' · '+d2;
 if(cmd===0xb0){const v=d2/127;
 if(d1===1){state.center=v;EL.sCenter.value=v;EL.oCenter.textContent=v.toFixed(2);rebuildKeepTime();}
@@ -1389,16 +1375,14 @@ else if(d1===7){state.vol=v;EL.vol.value=v;if(master&&actx&&state.monitor)master
 else if(cmd===0x90&&d2>0){const i=d1-60;if(i>=0&&i<NCH)toggleSolo(i);}
 else if(cmd===0x80){const i=d1-60;if(i>=0&&i<NCH&&CH[i].solo)toggleSolo(i);}};}
 
-/* ══ PWA ══ */
 let deferredPrompt=null;
 window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPrompt=e;EL.pwaBtn.disabled=false;EL.pwaBtn.textContent='INSTALL APP';});
 EL.pwaBtn.addEventListener('click',async()=>{if(!deferredPrompt)return;deferredPrompt.prompt();
 const r=await deferredPrompt.userChoice;deferredPrompt=null;EL.pwaBtn.disabled=true;
-EL.pwaBtn.textContent=r.outcome==='accepted'?'INSTALLED':'INSTALL APP';});
+EL.pwaBtn.textContent=r.outcome==='accepted'?'INSTALLED':'OFFLINE READY';});
 if('serviceWorker' in navigator&&location.protocol.startsWith('http')){
-navigator.serviceWorker.register('sw.js').then(()=>{EL.pwaBtn.textContent=EL.pwaBtn.disabled?'OFFLINE READY':'INSTALL APP';}).catch(()=>{});}
+navigator.serviceWorker.register('sw.js').then(()=>{if(!deferredPrompt)EL.pwaBtn.textContent='OFFLINE READY';}).catch(()=>{});}
 
-/* ══ UI wiring ══ */
 function setStatus(t,c){EL.statusTxt.textContent=t;EL.led.className='led'+(c?' '+c:'');}
 function syncPlayIcon(){EL.playIcon.innerHTML=state.playing?'<path d="M6 5h4v14H6zM14 5h4v14h-4z"/>':'<path d="M8 5v14l11-7z"/>';}
 function buildLegend(){EL.legend.innerHTML=EN.map(e=>{const c=CH[e];
@@ -1426,22 +1410,22 @@ EL.monBtn.addEventListener('click',e=>{state.monitor=!state.monitor;e.currentTar
 e.currentTarget.textContent=state.monitor?'MONITOR':'MUTED';if(master&&actx)master.gain.setTargetAtTime(state.monitor?state.vol:0,actx.currentTime,.02);});
 EL.vol.addEventListener('input',e=>{state.vol=+e.target.value;if(master&&actx&&state.monitor)master.gain.setTargetAtTime(state.vol,actx.currentTime,.02);});
 EL.renderBtn.addEventListener('click',renderUpmix);
-[['sCenter','center','oCenter'],['sSpread','spread','oSpread'],['sLfe','lfe','oLfe']].forEach(([el,key,out])=>{
-EL[el].addEventListener('input',()=>{state[key]=+EL[el].value;EL[out].textContent=(+EL[el].value).toFixed(2);});
-EL[el].addEventListener('change',rebuildKeepTime);});
-[['sRoomW','w','oRoomW','m'],['sRoomD','d','oRoomD','m'],['sRoomH','h','oRoomH','m']].forEach(([el,key,out,u])=>{
-EL[el].addEventListener('input',()=>{room[key]=+EL[el].value;EL[out].textContent=room[key].toFixed(2)+u;});});
+[['sCenter','center','oCenter'],['sSpread','spread','oSpread'],['sLfe','lfe','oLfe']].forEach(a=>{
+EL[a[0]].addEventListener('input',()=>{state[a[1]]=+EL[a[0]].value;EL[a[2]].textContent=(+EL[a[0]].value).toFixed(2);});
+EL[a[0]].addEventListener('change',rebuildKeepTime);});
+[['sRoomW','w','oRoomW'],['sRoomD','d','oRoomD'],['sRoomH','h','oRoomH']].forEach(a=>{
+EL[a[0]].addEventListener('input',()=>{room[a[1]]=+EL[a[0]].value;EL[a[2]].textContent=room[a[1]].toFixed(2)+'m';});});
 EL.sRt60.addEventListener('input',()=>{rt60=+EL.sRt60.value;EL.oRt60.textContent=rt60.toFixed(2)+'s';});
-[['tgCabs','showCabs'],['tgTags','showTags'],['tgRadar','showRadar'],['tgAtmos','atmos'],['tgBin','hrtf'],['tgRefl','reflect'],['tgHeat','heat'],['tgObj','objects']].forEach(([id,key])=>{
-EL[id].addEventListener('click',e=>{state[key]=!state[key];e.currentTarget.classList.toggle('on',state[key]);
-if(key==='showRadar')EL.radarSect.style.display=state.showRadar?'':'none';
-if(key==='heat'){EL.heatSect.hidden=!state.heat;if(state.heat)queueResize();}
-if(key==='atmos'){autoLayout(state.srcN);rebuildKeepTime();}
-if(key==='hrtf')rebuildKeepTime();
-if(key==='reflect')EL.reflState.textContent=state.reflect?(measInfo?'MEASURED':'SYNTHETIC'):'OFF';});});
+[['tgCabs','showCabs'],['tgTags','showTags'],['tgRadar','showRadar'],['tgAtmos','atmos'],['tgBin','hrtf'],['tgRefl','reflect'],['tgHeat','heat'],['tgObj','objects']].forEach(a=>{
+EL[a[0]].addEventListener('click',e=>{state[a[1]]=!state[a[1]];e.currentTarget.classList.toggle('on',state[a[1]]);
+if(a[1]==='showRadar')EL.radarSect.style.display=state.showRadar?'':'none';
+if(a[1]==='heat'){EL.heatSect.hidden=!state.heat;if(state.heat)queueResize();}
+if(a[1]==='atmos'){autoLayout(state.srcN);rebuildKeepTime();}
+if(a[1]==='hrtf')rebuildKeepTime();
+if(a[1]==='reflect')EL.reflState.textContent=state.reflect?(measInfo?'MEASURED':'SYNTHETIC'):'OFF';});});
 EL.toneBtn.addEventListener('click',()=>tone.on?toneStop():toneStart());
 EL.toneCyc.addEventListener('click',e=>{tone.cycle=!tone.cycle;e.currentTarget.classList.toggle('on',tone.cycle);});
-EL.sigType.addEventListener('change',e=>{tone.type=e.target.value==='tones'||e.target.value==='id'?'pink':e.target.value;if(tone.on)toneResume();syncToneUI();});
+EL.sigType.addEventListener('change',e=>{const v=e.target.value;tone.type=(v==='tones'||v==='id')?'pink':v;if(tone.on)toneResume();syncToneUI();});
 EL.toneCh.addEventListener('change',e=>{tone.ch=+e.target.value;if(tone.on)toneConnect();syncToneUI();});
 EL.toneLvl.addEventListener('input',e=>{tone.level=+e.target.value;if(tone.out)tone.out.gain.value=tone.level;});
 EL.genBtn.addEventListener('click',async()=>{ensureCtx();setStatus('GENERATING','decode');
@@ -1456,9 +1440,9 @@ EL.measBtn.addEventListener('click',measureRoom);
 EL.measApply.addEventListener('click',()=>{if(!measInfo)return;rt60=clamp(measInfo.rt60,.1,1.6);
 EL.sRt60.value=rt60;EL.oRt60.textContent=rt60.toFixed(2)+'s';EL.reflState.textContent='MEASURED';toast('RT60 APPLIED FROM MEASUREMENT');});
 EL.eqCh.addEventListener('change',e=>loadEQ(+e.target.value));
-[['sEqLo','lo','oEqLo'],['sEqMid','mid','oEqMid'],['sEqHi','hi','oEqHi']].forEach(([el,key,out])=>{
-EL[el].addEventListener('input',()=>{const i=+EL.eqCh.value;CH[i].eq[key]=+EL[el].value;
-EL[out].textContent=(+EL[el].value).toFixed(1)+' dB';applyEQ();});});
+[['sEqLo','lo','oEqLo'],['sEqMid','mid','oEqMid'],['sEqHi','hi','oEqHi']].forEach(a=>{
+EL[a[0]].addEventListener('input',()=>{const i=+EL.eqCh.value;CH[i].eq[a[1]]=+EL[a[0]].value;
+EL[a[2]].textContent=(+EL[a[0]].value).toFixed(1)+' dB';applyEQ();});});
 EL.eqBypass.addEventListener('click',()=>{const i=+EL.eqCh.value;CH[i].eq.bypass=!CH[i].eq.bypass;loadEQ(i);applyEQ();});
 EL.eqFlat.addEventListener('click',()=>{const i=+EL.eqCh.value;CH[i].eq={lo:0,mid:0,hi:0,bypass:false};loadEQ(i);applyEQ();toast('EQ FLATTENED · '+CH[i].id);});
 EL.repBtn.addEventListener('click',analyzeReport);EL.repExport.addEventListener('click',exportReport);
@@ -1488,7 +1472,7 @@ const delayInputs=[];
 for(let i=0;i<6;i++){const l=document.createElement('label');l.textContent=CH[i].id;
 const inp=document.createElement('input');inp.type='number';inp.min='0.5';inp.max='12';inp.step='0.05';inp.value=CH[i].r;
 const out=document.createElement('output');inp.addEventListener('input',recalcDelay);delayInputs.push({inp,out});EL.delayGrid.append(l,inp,out);}
-function recalcDelay(){const d=delayInputs.map(x=>clamp(+x.inp.value||1,.5,12)),mx=Math.max(...d);
+function recalcDelay(){const d=delayInputs.map(x=>clamp(+x.inp.value||1,.5,12)),mx=Math.max.apply(null,d);
 delayInputs.forEach((x,i)=>{x.out.textContent=(d[i]/343*1000).toFixed(1)+'ms · AVR +'+((mx-d[i])/343*1000).toFixed(1);});}
 recalcDelay();
 let seeking=false;
@@ -1532,26 +1516,24 @@ else if(k.toLowerCase()==='d')demoAction();
 else if(k==='?'||k==='/')EL.modal.classList.contains('on')?closeModal():openModal('help');
 else if(k==='Escape'){closeModal();setRail(false);}});
 
-/* ══ modals ══ */
 const YEAR=new Date().getFullYear(),CONTACT='akuncadangans1tu@protonmail.me';
 EL.year.textContent=YEAR;EL.ver.textContent=APP_VERSION;
 const LEGAL={
 help:{tag:'FIELD MANUAL · v'+APP_VERSION,title:'Everything in the lab',html:`
 <p><b>Routing</b> auto-detects 1–12 channels. 5.1.4 and 7.1.4 play their height channels discretely; smaller layouts get a derived up-mix. <b>HRTF</b> renders every bus through a head-related panner for real 3D on headphones. <b>OBJECTS</b> draws and plays ADM BWF audio objects as moving sources.</p>
 <h4>MEASURE</h4><p>Pick a bus, press <b>MEASURE WITH MIC</b>. A log sweep plays, your mic records the room, and the app deconvolves a real impulse response — giving measured RT60 and first-reflection timings. Apply it, then export the measured IR.</p>
-<h4>EQ & IR</h4><p>Three bands per bus, live. <b>EXPORT IR</b> writes a synthetic 6-channel room IR; <b>FOLD EQ INTO IR</b> convolves your correction into it; <b>EXPORT MEASURED</b> writes the real captured IR.</p>
-<h4>RENDER & REPORT</h4><p><b>RENDER</b> bakes the current matrix + EQ to a 5.1 float WAV offline. <b>ANALYZE FILE</b> computes BS.1770 integrated LUFS, LRA and per-channel levels, exportable as a styled HTML report.</p>
+<h4>EQ &amp; IR</h4><p>Three bands per bus, live. <b>EXPORT IR</b> writes a synthetic 6-channel room IR; <b>FOLD EQ INTO IR</b> convolves your correction into it; <b>EXPORT MEASURED</b> writes the real captured IR.</p>
+<h4>RENDER &amp; REPORT</h4><p><b>RENDER</b> bakes the current matrix + EQ to a 5.1 float WAV offline. <b>ANALYZE FILE</b> computes BS.1770 integrated LUFS, LRA and per-channel levels, exportable as a styled HTML report.</p>
 <h4>PRESETS</h4><p>Save room + matrix + EQ + camera locally, or copy a share link that encodes the whole state in the URL.</p>
 <h4>KEYS</h4><ul><li><kbd>Space</kbd> play</li><li><kbd>← →</kbd> seek</li><li><kbd>1…6</kbd> solo · <kbd>⇧1…6</kbd> mute · <kbd>0</kbd> clear</li><li><kbd>T</kbd> tone · <kbd>M</kbd> measure · <kbd>C</kbd> camera · <kbd>D</kbd> demo · <kbd>Esc</kbd> close</li></ul>`},
 measure:{tag:'CALIBRATION',title:'Measuring your room',html:`
-<h4>SETUP</h4><ul><li>Place the mic (or laptop) at the listening position, capsule at ear height.</li><li>Turn off any system echo cancellation / noise suppression — the app requests raw capture.</li><li>Set playback volume moderate; the sweep must be clearly above the noise floor.</li><li>Measure one bus at a time. Start with FL.</li></ul>
-<h4>WHAT YOU GET</h4><p>A deconvolved impulse response, T30-derived RT60, and the strongest early reflections in milliseconds. Those ms values tell you which surface to treat: a 4 ms reflection is roughly a 1.4 m extra path.</p>
+<h4>SETUP</h4><ul><li>Place the mic at the listening position, capsule at ear height.</li><li>Echo cancellation and noise suppression are requested off.</li><li>Set playback volume moderate; the sweep must clear the noise floor.</li><li>Measure one bus at a time. Start with FL.</li></ul>
+<h4>WHAT YOU GET</h4><p>A deconvolved impulse response, T30-derived RT60, and the strongest early reflections in milliseconds. A 4 ms reflection means roughly 1.4 m of extra path.</p>
 <h4>LIMITS</h4><p>A laptop mic is not a measurement mic — expect ±20 % on RT60 and no reliable absolute SPL. Use a calibrated USB mic for serious work.</p>`},
 decoder:{tag:'OPTIONAL CORE',title:'Diet WASM decoder',html:`
-<p>Browsers cannot natively decode <b>AC-3 / E-AC-3 / DTS</b>. Surround-field lazily loads a <b>diet single-codec FFmpeg core</b> (~2–4 MB) only when a native decode fails. Nothing is downloaded unless you need it.</p>
-<h4>INSTALL THE CORE</h4><p>Build once, then commit the two artifacts into <code>ffmpeg/</code> at your repo root:</p>
-<div class="prebox">git clone https://github.com/ffmpeg/FFmpeg wasm-build && cd wasm-build
-git checkout n6.1
+<p>Browsers cannot natively decode <b>AC-3 / E-AC-3 / DTS</b>. Surround-field lazily loads a <b>diet single-codec FFmpeg core</b> only when a native decode fails. Nothing is downloaded unless you need it.</p>
+<h4>INSTALL THE CORE</h4><p>Build once, then commit both artifacts into <code>ffmpeg/</code> at your repo root:</p>
+<div class="prebox">git clone https://github.com/ffmpeg/FFmpeg wasm-build &amp;&amp; cd wasm-build
 emconfigure ./configure --cc=emcc --cxx=em++ --ar=emar --ranlib=emranlib \\
   --disable-everything --disable-programs --disable-doc --disable-network \\
   --disable-avdevice --disable-swresample --disable-swscale --disable-postproc \\
@@ -1559,14 +1541,13 @@ emconfigure ./configure --cc=emcc --cxx=em++ --ar=emar --ranlib=emranlib \\
   --enable-demuxer=ac3 --enable-demuxer=eac3 --enable-demuxer=dts --enable-demuxer=matroska \\
   --enable-muxer=wav --enable-encoder=pcm_f32le --enable-protocol=file \\
   --disable-autodetect --disable-iconv --disable-zlib --disable-bzlib
-emmake make -j4
-# emit ffmpeg-core.js + ffmpeg-core.wasm into ./ffmpeg/</div>
-<p>Any equivalent minimal build exposing <code>createFFmpegCore</code> with <code>FS</code> and <code>exec</code> works. The loader probes <code>ffmpeg/ffmpeg-core.js</code>, instantiates it, and pipes files through <code>-f wav -c:a pcm_f32le</code>.</p>
-<h4>IF THE CORE IS ABSENT</h4><p>The app stays fully functional for WAV / FLAC / MP3 / M4A / OGG and video. For AC-3/DTS without the core, convert once on the desktop:</p>
+emmake make -j4</div>
+<p>Any minimal build exposing <code>createFFmpegCore</code> with <code>FS</code> and <code>exec</code> works. The loader probes <code>ffmpeg/ffmpeg-core.js</code> and pipes files through <code>-f wav -c:a pcm_f32le</code>.</p>
+<h4>WITHOUT THE CORE</h4><p>WAV / FLAC / MP3 / M4A / OGG and video keep working. For AC-3/DTS, convert once on the desktop:</p>
 <div class="prebox">ffmpeg -i input.mkv -map 0:a:0 -c:a flac -compression_level 8 surround.flac</div>
 <div class="trow"><button class="tbtn" data-copy="ffmpeg -i input.mkv -map 0:a:0 -c:a flac -compression_level 8 surround.flac">COPY COMMAND</button><button class="tbtn warn" data-try-stereo>TRY STEREO ANYWAY</button></div>`},
 tos:{tag:'LEGAL · '+YEAR,title:'Terms of Service',html:`<p>Surround-field is a client-side audio tool provided <b>as is</b>, without warranty. All processing happens on your device; no media is uploaded. Only load content you own or are licensed to use. Code and design © ${YEAR} Surround-field, licensed under <b>GNU AGPL v3.0</b>. To the maximum extent permitted by law the authors are not liable for hearing injury, equipment damage or data loss. Contact <a href="mailto:${CONTACT}">${CONTACT}</a>.</p>`},
-privacy:{tag:'PRIVACY',title:'Privacy Policy',html:`<p><b>No accounts, no analytics, no telemetry, no cookies.</b> Files are decoded in device memory and discarded on reload. Microphone capture happens only when you press MEASURE, is processed locally, and the stream is stopped immediately after. LocalStorage holds only your presets and language choice. Google Fonts serves the typefaces; self-host them for zero third-party requests.</p>`},
+privacy:{tag:'PRIVACY',title:'Privacy Policy',html:`<p><b>No accounts, no analytics, no telemetry, no cookies.</b> Files are decoded in device memory and discarded on reload. Microphone capture happens only when you press MEASURE, is processed locally, and the stream stops immediately after. LocalStorage holds only your presets and language choice. Google Fonts serves the typefaces; self-host them for zero third-party requests.</p>`},
 license:{tag:'LICENSE',title:'GNU AGPL v3.0',html:`<div class="prebox">Copyright (c) ${YEAR} Surround-field
 
 This program is free software: you can redistribute it and/or modify it under
@@ -1576,11 +1557,10 @@ any later version.
 
 This program is distributed in the hope that it will be useful, but WITHOUT
 ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License
-for more details.</div>
+FITNESS FOR A PARTICULAR PURPOSE.</div>
 <p>You may use, modify and redistribute freely, including commercially. If you distribute it or offer it as a network service, you must release your modified source under the same license and keep this notice. Full text: <a href="https://www.gnu.org/licenses/agpl-3.0.html" target="_blank" rel="noopener">gnu.org/licenses/agpl-3.0</a>.</p>
 <p>The optional FFmpeg WASM core is a separate work under its own LGPL/GPL terms and is not bundled with this source.</p>`},
-disclaimer:{tag:'SAFETY',title:'Audio & hardware safety',html:`<h4>HEARING</h4><p>Sweeps, tones and LFE content reach high levels fast. Sustained exposure above ~85 dB SPL causes permanent damage. Start quiet, especially with headphones and HRTF mode.</p><h4>EQUIPMENT</h4><p>Full-scale sweeps can destroy tweeters and subwoofers. Ramp levels slowly. Never test polarity at volume.</p><h4>METROLOGY</h4><p>LUFS, LRA, peak, RT60 and delay figures are browser-computed approximations for guidance — not certified compliance measurements. Sample peak is not oversampled true-peak.</p>`},
+disclaimer:{tag:'SAFETY',title:'Audio &amp; hardware safety',html:`<h4>HEARING</h4><p>Sweeps, tones and LFE content reach high levels fast. Sustained exposure above ~85 dB SPL causes permanent damage. Start quiet, especially with headphones and HRTF mode.</p><h4>EQUIPMENT</h4><p>Full-scale sweeps can destroy tweeters and subwoofers. Ramp levels slowly. Never test polarity at volume.</p><h4>METROLOGY</h4><p>LUFS, LRA, peak, RT60 and delay figures are browser-computed approximations for guidance — not certified compliance measurements. Sample peak is not oversampled true-peak.</p>`},
 contact:{tag:'CONTACT',title:'Get in touch',html:`<p>Bugs, security reports, licensing and collaboration:</p><div class="prebox">${CONTACT}</div><p><a href="mailto:${CONTACT}">Open a mail draft →</a></p>`}
 };
 function openModal(k){const t=LEGAL[k];if(!t)return;EL.modalTag.textContent=t.tag;EL.modalTitle.textContent=t.title;EL.modalBody.innerHTML=t.html;EL.modal.classList.add('on');}
@@ -1594,12 +1574,11 @@ const ts=e.target.closest('[data-try-stereo]');
 if(ts){e.preventDefault();closeModal();if(pendingMedia){const f=pendingMedia;pendingMedia=null;setupMedia(f);}return;}
 const b=e.target.closest('[data-open]');if(b){e.preventDefault();openModal(b.dataset.open);}});
 
-/* ══ boot + loop ══ */
 try{applyLang(localStorage.getItem('sf_lang')||'en');EL.langSel.value=LANG;}catch(e){applyLang('en');}
 parseHash();syncOutputs();autoLayout(6);loadEQ(0);renderPresets();resize();refreshRack();buildLegend();
 setStatus('IDLE','');syncToneUI();decPill('IDLE','');
 EL.tgRefl.classList.toggle('on',state.reflect);EL.tgHeat.classList.toggle('on',state.heat);EL.tgObj.classList.toggle('on',state.objects);
-$$('.sect').forEach((s,i)=>{s.classList.add('reveal');s.style.animationDelay=(.05*i+.05)+'s';});
+$$('.sect').forEach((s,i)=>{s.classList.add('reveal');s.style.animationDelay=(.04*i+.05)+'s';});
 console.log('%cSURROUND-FIELD%c v'+APP_VERSION+' · AGPL-3.0 · local audio lab',
 'background:#ffb545;color:#14100a;font-weight:700;padding:2px 6px;border-radius:3px','color:#8494a9;padding:2px 4px');
 let last=performance.now(),perf=0,uiT=0,heatAcc=0;
