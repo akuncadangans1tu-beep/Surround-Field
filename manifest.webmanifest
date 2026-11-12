@@ -1,0 +1,16 @@
+{
+  "name": "Surround-field — Multi-Channel Audio Lab",
+  "short_name": "SurroundField",
+  "description": "Serverless surround visualizer, room measurement, HRTF binaural, Atmos objects, IR export and loudness reports.",
+  "start_url": ".",
+  "scope": ".",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#070910",
+  "theme_color": "#070910",
+  "categories": ["music", "utilities", "productivity"],
+  "icons": [
+    { "src": "og-cover.png", "sizes": "1200x630", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}
