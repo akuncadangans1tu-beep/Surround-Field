@@ -10,7 +10,7 @@
   "theme_color": "#070910",
   "categories": ["music", "utilities", "productivity"],
   "icons": [
-    { "src": "og-cover.png", "sizes": "1200x630", "type": "image/png", "purpose": "any" },
-    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "maskable" }
   ]
 }
